@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { randomUUID } from 'expo-crypto';
 import { supabase } from './supabase';
 import { normalizeIdentifier } from './normalize';
 import type { ClientForm, VehicleForm } from './validation';
@@ -26,7 +27,7 @@ export function useCreateDraft() {
       if (!vid) {
         const { data: vehicle, error: vErr } = await supabase
           .from('vehicles')
-          .insert({ make: '', model: '', chassis_number: `DRAFT-${crypto.randomUUID()}`, created_by: uid })
+          .insert({ make: '', model: '', chassis_number: `DRAFT-${randomUUID()}`, created_by: uid })
           .select('id')
           .single();
         if (vErr) throw vErr;

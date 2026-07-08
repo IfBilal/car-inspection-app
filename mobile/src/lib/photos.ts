@@ -1,5 +1,6 @@
 import * as ImagePicker from 'expo-image-picker';
 import * as ImageManipulator from 'expo-image-manipulator';
+import { randomUUID } from 'expo-crypto';
 import { supabase } from './supabase';
 
 export const MAX_PHOTOS = 12;
@@ -26,7 +27,7 @@ export async function uploadInspectionPhoto(
   if (!result.base64) throw new Error('Could not encode photo');
 
   const bytes = Uint8Array.from(atob(result.base64), (c) => c.charCodeAt(0));
-  const path = `inspections/${inspectionId}/${crypto.randomUUID()}.jpg`;
+  const path = `inspections/${inspectionId}/${randomUUID()}.jpg`;
 
   const { error: upErr } = await supabase.storage
     .from('inspection-photos')
