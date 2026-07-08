@@ -1,6 +1,6 @@
 import { memo, useCallback } from 'react';
 import { StyleSheet, View } from 'react-native';
-import Animated, { LinearTransition } from 'react-native-reanimated';
+import Animated, { FadeIn } from 'react-native-reanimated';
 import { useTheme } from '@/theme/ThemeProvider';
 import { AppText } from '@/components/ui/AppText';
 import { Input } from '@/components/ui/Input';
@@ -53,10 +53,9 @@ export const ItemRow = memo(function ItemRow({ item, inspectionId }: Props) {
   const needsNote = entry?.result === 'fail' || entry?.result === 'repair';
 
   return (
-    <Animated.View
-      layout={LinearTransition.springify().damping(18)}
-      style={[styles.row, { borderBottomColor: colors.divider }]}
-    >
+    // No layout animation here: FlashList recycles these rows while scrolling,
+    // and a row-level layout transition makes the whole list bounce on scroll.
+    <View style={[styles.row, { borderBottomColor: colors.divider }]}>
       <View style={styles.top}>
         <View style={styles.labelCol}>
           <AppText variant="micro" color="tertiary">
@@ -69,14 +68,16 @@ export const ItemRow = memo(function ItemRow({ item, inspectionId }: Props) {
         <ResultSegment value={entry?.result ?? null} onChange={onChange} />
       </View>
       {needsNote ? (
-        <Input
-          placeholder="What’s wrong?"
-          defaultValue={entry?.note ?? ''}
-          onChangeText={onNote}
-          style={{ paddingVertical: 8 }}
-        />
+        <Animated.View entering={FadeIn.duration(160)}>
+          <Input
+            placeholder="What’s wrong?"
+            defaultValue={entry?.note ?? ''}
+            onChangeText={onNote}
+            style={{ paddingVertical: 8 }}
+          />
+        </Animated.View>
       ) : null}
-    </Animated.View>
+    </View>
   );
 });
 

@@ -48,7 +48,7 @@ function ToastView({ toast, onAction }: { toast: ToastMsg; onAction: () => void 
   const Icon = { success: CheckCircle2, error: AlertCircle, info: Info }[toast.kind];
   return (
     <Animated.View
-      entering={FadeInUp.springify().damping(18)}
+      entering={FadeInUp.duration(250)}
       exiting={FadeOutUp}
       pointerEvents="box-none"
       style={[styles.host, { top: insets.top + 8 }]}

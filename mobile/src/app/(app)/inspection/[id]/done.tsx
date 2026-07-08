@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
-import Animated, { FadeInDown, ZoomIn } from 'react-native-reanimated';
+import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 import { CheckCircle2, TriangleAlert } from 'lucide-react-native';
 import { Screen } from '@/components/ui/Screen';
@@ -50,7 +50,7 @@ export default function DoneScreen() {
     <Screen scroll={false}>
       <View style={styles.center}>
         <Animated.View
-          entering={ZoomIn.springify().damping(12)}
+          entering={FadeIn.duration(400)}
           style={[styles.circle, { backgroundColor: colors.passSoft }]}
         >
           <CheckCircle2 size={56} color={colors.pass} strokeWidth={1.5} />

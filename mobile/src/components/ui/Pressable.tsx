@@ -11,7 +11,8 @@ type Props = Omit<PressableProps, 'style' | 'children'> & {
   pressScale?: number;
 };
 
-const SPRING = { damping: 20, stiffness: 400 };
+// Critically damped: quick scale with no visible overshoot/bounce.
+const SPRING = { damping: 30, stiffness: 400 };
 
 /** Pressable with the design-system spring press state (scale 0.97). */
 export function ScalePressable({ style, children, pressScale = 0.97, onPressIn, onPressOut, ...rest }: Props) {
