@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet } from 'react-native';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Animated, { FadeInDown, ZoomIn } from 'react-native-reanimated';
+import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
 import { ArrowLeft, MailCheck } from 'lucide-react-native';
 import { AuthBackdrop } from '@/components/auth/AuthBackdrop';
 import { AppText } from '@/components/ui/AppText';
@@ -44,14 +44,14 @@ export default function ForgotScreen() {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          <Animated.View entering={FadeInDown.springify().damping(16)}>
+          <Animated.View entering={FadeInDown.duration(350)}>
             <ScalePressable onPress={() => router.back()} style={styles.back} hitSlop={12}>
               <ArrowLeft size={22} color="#FFFFFF" />
             </ScalePressable>
           </Animated.View>
 
           {sent ? (
-            <Animated.View entering={ZoomIn.springify().damping(14)} style={styles.sentWrap}>
+            <Animated.View entering={FadeIn.duration(350)} style={styles.sentWrap}>
               <Animated.View style={styles.sentIcon}>
                 <MailCheck size={30} color="#4ADE80" strokeWidth={1.75} />
               </Animated.View>
@@ -65,7 +65,7 @@ export default function ForgotScreen() {
             </Animated.View>
           ) : (
             <>
-              <Animated.View entering={FadeInDown.springify().damping(16).delay(80)}>
+              <Animated.View entering={FadeInDown.duration(350).delay(60)}>
                 <AppText variant="micro" style={styles.eyebrow}>
                   CarInspect Pro
                 </AppText>
@@ -73,7 +73,7 @@ export default function ForgotScreen() {
                   Reset your{'\n'}password
                 </AppText>
               </Animated.View>
-              <Animated.View entering={FadeInDown.springify().damping(16).delay(200)} style={styles.card}>
+              <Animated.View entering={FadeInDown.duration(350).delay(140)} style={styles.card}>
                 <Input
                   tone="glass"
                   label="Email"

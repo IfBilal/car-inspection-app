@@ -50,7 +50,7 @@ export default function RegisterScreen() {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          <Animated.View entering={FadeInDown.springify().damping(16)}>
+          <Animated.View entering={FadeInDown.duration(350)}>
             <ScalePressable onPress={() => router.back()} style={styles.back} hitSlop={12}>
               <ArrowLeft size={22} color="#FFFFFF" />
             </ScalePressable>
@@ -62,7 +62,7 @@ export default function RegisterScreen() {
             </AppText>
           </Animated.View>
 
-          <Animated.View entering={FadeInDown.springify().damping(16).delay(150)} style={styles.card}>
+          <Animated.View entering={FadeInDown.duration(350).delay(80)} style={styles.card}>
             <Controller
               control={control}
               name="full_name"

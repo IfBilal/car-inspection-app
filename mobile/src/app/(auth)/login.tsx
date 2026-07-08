@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet } from 'react-native';
 import { Link } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Animated, { FadeInDown, FadeInUp, ZoomIn } from 'react-native-reanimated';
+import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -44,12 +44,12 @@ export default function LoginScreen() {
           showsVerticalScrollIndicator={false}
         >
           {/* Brand */}
-          <Animated.View entering={ZoomIn.springify().damping(14).delay(80)} style={styles.logoWrap}>
+          <Animated.View entering={FadeIn.duration(350)} style={styles.logoWrap}>
             <LinearGradient colors={['#22C55E', '#15803D']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.logo}>
               <ShieldCheck size={30} color="#FFFFFF" strokeWidth={2.2} />
             </LinearGradient>
           </Animated.View>
-          <Animated.View entering={FadeInDown.springify().damping(16).delay(180)}>
+          <Animated.View entering={FadeInDown.duration(350).delay(80)}>
             <AppText variant="micro" style={styles.eyebrow}>
               CarInspect Pro
             </AppText>
@@ -62,7 +62,7 @@ export default function LoginScreen() {
           </Animated.View>
 
           {/* Glass form card */}
-          <Animated.View entering={FadeInDown.springify().damping(16).delay(300)} style={styles.card}>
+          <Animated.View entering={FadeInDown.duration(350).delay(160)} style={styles.card}>
             <Controller
               control={control}
               name="email"
@@ -104,7 +104,7 @@ export default function LoginScreen() {
             </Link>
           </Animated.View>
 
-          <Animated.View entering={FadeInUp.delay(480)} style={styles.footer}>
+          <Animated.View entering={FadeIn.duration(350).delay(260)} style={styles.footer}>
             <AppText variant="body" style={styles.footerText}>
               New here?{' '}
               <Link href="/(auth)/register">

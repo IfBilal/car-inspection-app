@@ -47,7 +47,7 @@ export default function HomeScreen() {
   return (
     <Screen refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
       {/* Header */}
-      <Animated.View entering={FadeInDown.springify().damping(16)} style={styles.header}>
+      <Animated.View entering={FadeInDown.duration(320)} style={styles.header}>
         <View style={{ flex: 1 }}>
           <AppText variant="caption" color="secondary">
             {greeting()} {firstName}
@@ -67,7 +67,7 @@ export default function HomeScreen() {
       </Animated.View>
 
       {/* Action cards */}
-      <Animated.View entering={FadeInDown.springify().damping(16).delay(100)} style={styles.actions}>
+      <Animated.View entering={FadeInDown.duration(320).delay(60)} style={styles.actions}>
         <ScalePressable onPress={startInspection} style={[styles.actionWrap, styles.actionGlow]}>
           <LinearGradient
             colors={[colors.primary, colors.primaryPressed]}
@@ -98,7 +98,7 @@ export default function HomeScreen() {
 
       {/* Drafts */}
       {drafts.data && drafts.data.length > 0 ? (
-        <Animated.View entering={FadeInUp.springify().damping(16).delay(180)}>
+        <Animated.View entering={FadeInUp.duration(320).delay(120)}>
           <AppText variant="micro" color="tertiary" style={styles.sectionHeader}>
             Continue inspection
           </AppText>
@@ -119,7 +119,7 @@ export default function HomeScreen() {
       ) : null}
 
       {/* Recent */}
-      <Animated.View entering={FadeInUp.springify().damping(16).delay(260)}>
+      <Animated.View entering={FadeInUp.duration(320).delay(180)}>
         <AppText variant="micro" color="tertiary" style={styles.sectionHeader}>
           Recent inspections
         </AppText>
