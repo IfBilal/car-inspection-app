@@ -27,15 +27,19 @@ export const Input = forwardRef<TextInput, Props>(function Input(
           {label}
         </AppText>
       ) : null}
+      {/* Keep the style array shape constant across focus changes — adding new
+          style keys mid-focus restructures the native view on Android (Fabric)
+          and blurs the TextInput, instantly dismissing the keyboard. Focus is
+          indicated by border colour + width only. */}
       <View
         style={[
           styles.field,
           {
             borderColor,
+            borderWidth: focused ? 2 : 1,
             borderRadius: radii.input,
             backgroundColor: colors.surface,
           },
-          focused && { shadowColor: colors.primary, shadowOpacity: 0.15, shadowRadius: 4, shadowOffset: { width: 0, height: 0 } },
         ]}
       >
         <TextInput
