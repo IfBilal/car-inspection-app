@@ -9,21 +9,53 @@ type Props = TextInputProps & {
   helper?: string;
   /** e.g. "KM" rendered at the right edge */
   suffix?: string;
+  /** 'glass' = translucent dark-hero styling for the auth screens */
+  tone?: 'default' | 'glass';
+};
+
+const GLASS = {
+  bg: 'rgba(255,255,255,0.07)',
+  border: 'rgba(255,255,255,0.16)',
+  borderFocus: '#22C55E',
+  text: '#F2F5F2',
+  label: 'rgba(255,255,255,0.72)',
+  placeholder: 'rgba(255,255,255,0.40)',
+  helper: 'rgba(255,255,255,0.55)',
+  error: '#F87171',
 };
 
 export const Input = forwardRef<TextInput, Props>(function Input(
-  { label, error, helper, suffix, style, onFocus, onBlur, ...rest },
+  { label, error, helper, suffix, style, onFocus, onBlur, tone = 'default', ...rest },
   ref,
 ) {
   const { colors, radii, type } = useTheme();
   const [focused, setFocused] = useState(false);
+  const glass = tone === 'glass';
 
-  const borderColor = error ? colors.fail : focused ? colors.primary : colors.border;
+  const palette = glass
+    ? {
+        bg: GLASS.bg,
+        border: error ? GLASS.error : focused ? GLASS.borderFocus : GLASS.border,
+        text: GLASS.text,
+        label: GLASS.label,
+        placeholder: GLASS.placeholder,
+        helper: GLASS.helper,
+        error: GLASS.error,
+      }
+    : {
+        bg: colors.surface,
+        border: error ? colors.fail : focused ? colors.primary : colors.border,
+        text: colors.textPrimary,
+        label: colors.textSecondary,
+        placeholder: colors.textTertiary,
+        helper: colors.textTertiary,
+        error: colors.fail,
+      };
 
   return (
     <View style={styles.wrap}>
       {label ? (
-        <AppText variant="caption" color="secondary" style={styles.label}>
+        <AppText variant="caption" style={{ color: palette.label }}>
           {label}
         </AppText>
       ) : null}
@@ -35,10 +67,10 @@ export const Input = forwardRef<TextInput, Props>(function Input(
         style={[
           styles.field,
           {
-            borderColor,
+            borderColor: palette.border,
             borderWidth: focused ? 2 : 1,
             borderRadius: radii.input,
-            backgroundColor: colors.surface,
+            backgroundColor: palette.bg,
           },
         ]}
       >
@@ -53,21 +85,22 @@ export const Input = forwardRef<TextInput, Props>(function Input(
             setFocused(false);
             onBlur?.(e);
           }}
-          placeholderTextColor={colors.textTertiary}
-          style={[type.body, styles.input, { color: colors.textPrimary }, style]}
+          placeholderTextColor={palette.placeholder}
+          selectionColor={glass ? '#22C55E' : colors.primary}
+          style={[type.body, styles.input, { color: palette.text }, style]}
         />
         {suffix ? (
-          <AppText variant="caption" color="tertiary" style={styles.suffix}>
+          <AppText variant="caption" style={[styles.suffix, { color: palette.helper }]}>
             {suffix}
           </AppText>
         ) : null}
       </View>
       {error ? (
-        <AppText variant="caption" style={[styles.helper, { color: colors.fail }]}>
+        <AppText variant="caption" style={{ color: palette.error }}>
           {error}
         </AppText>
       ) : helper ? (
-        <AppText variant="caption" color="tertiary" style={styles.helper}>
+        <AppText variant="caption" style={{ color: palette.helper }}>
           {helper}
         </AppText>
       ) : null}
@@ -77,15 +110,12 @@ export const Input = forwardRef<TextInput, Props>(function Input(
 
 const styles = StyleSheet.create({
   wrap: { gap: 6 },
-  label: {},
   field: {
-    borderWidth: 1,
-    minHeight: 52,
+    minHeight: 54,
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
   },
   input: { flex: 1, paddingVertical: 14 },
   suffix: { marginLeft: 8 },
-  helper: {},
 });

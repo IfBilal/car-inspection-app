@@ -1,4 +1,5 @@
 import { ActivityIndicator, View, StyleSheet } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import type { LucideIcon } from 'lucide-react-native';
 import { useTheme } from '@/theme/ThemeProvider';
 import { AppText } from './AppText';
@@ -26,20 +27,62 @@ export function Button({
   fullWidth,
 }: Props) {
   const { colors, radii } = useTheme();
-  const height = size === 'lg' ? 52 : 44;
+  const height = size === 'lg' ? 54 : 44;
   const isFull = fullWidth ?? size === 'lg';
 
-  const background = {
-    primary: colors.primary,
-    secondary: colors.surface,
-    ghost: 'transparent',
-    destructive: colors.fail,
-  }[variant];
   const labelColor = {
-    primary: colors.textOnPrimary,
+    primary: '#FFFFFF',
     secondary: colors.textPrimary,
     ghost: colors.primary,
     destructive: '#FFFFFF',
+  }[variant];
+
+  const content = loading ? (
+    <ActivityIndicator color={labelColor} />
+  ) : (
+    <View style={styles.content}>
+      {Icon ? <Icon size={size === 'lg' ? 20 : 18} color={labelColor} strokeWidth={2} /> : null}
+      <AppText variant="bodyStrong" style={{ color: labelColor }}>
+        {label}
+      </AppText>
+    </View>
+  );
+
+  if (variant === 'primary') {
+    // Gradient fill + soft green glow — the signature CTA treatment.
+    return (
+      <ScalePressable
+        accessibilityRole="button"
+        accessibilityState={{ disabled: disabled || loading, busy: loading }}
+        disabled={disabled || loading}
+        onPress={onPress}
+        style={[
+          styles.glow,
+          isFull && styles.fullWidth,
+          { borderRadius: radii.button, opacity: disabled ? 0.4 : 1 },
+        ]}
+      >
+        <LinearGradient
+          colors={['#22C55E', '#15803D']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={[styles.base, { height, borderRadius: radii.button }]}
+        >
+          {/* top sheen */}
+          <LinearGradient
+            colors={['#FFFFFF2E', 'transparent']}
+            style={[StyleSheet.absoluteFill, { borderRadius: radii.button, height: height / 2 }]}
+          />
+          {content}
+        </LinearGradient>
+      </ScalePressable>
+    );
+  }
+
+  const background = {
+    secondary: colors.surface,
+    ghost: 'transparent',
+    destructive: colors.fail,
   }[variant];
   const borderStyle =
     variant === 'secondary' ? { borderWidth: 1, borderColor: colors.border } : null;
@@ -55,19 +98,10 @@ export function Button({
         { height, borderRadius: radii.button, backgroundColor: background },
         borderStyle,
         isFull && styles.fullWidth,
-        (disabled || loading) && { opacity: disabled ? 0.4 : 1 },
+        { opacity: disabled ? 0.4 : 1 },
       ]}
     >
-      {loading ? (
-        <ActivityIndicator color={labelColor} />
-      ) : (
-        <View style={styles.content}>
-          {Icon ? <Icon size={20} color={labelColor} strokeWidth={2} /> : null}
-          <AppText variant="bodyStrong" style={{ color: labelColor }}>
-            {label}
-          </AppText>
-        </View>
-      )}
+      {content}
     </ScalePressable>
   );
 }
@@ -77,6 +111,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 20,
+    overflow: 'hidden',
+  },
+  glow: {
+    shadowColor: '#16A34A',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.45,
+    shadowRadius: 14,
+    elevation: 8,
   },
   fullWidth: { alignSelf: 'stretch' },
   content: { flexDirection: 'row', alignItems: 'center', gap: 8 },

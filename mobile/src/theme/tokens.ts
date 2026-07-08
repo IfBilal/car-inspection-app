@@ -108,8 +108,8 @@ export const radii = {
 } as const;
 
 export const type = {
-  display: { fontSize: 32, lineHeight: 38, fontFamily: 'Inter_700Bold' },
-  title1: { fontSize: 24, lineHeight: 30, fontFamily: 'Inter_700Bold' },
+  display: { fontSize: 32, lineHeight: 38, fontFamily: 'Inter_700Bold', letterSpacing: -0.6 },
+  title1: { fontSize: 24, lineHeight: 30, fontFamily: 'Inter_700Bold', letterSpacing: -0.4 },
   title2: { fontSize: 20, lineHeight: 26, fontFamily: 'Inter_600SemiBold' },
   body: { fontSize: 16, lineHeight: 24, fontFamily: 'Inter_400Regular' },
   bodyStrong: { fontSize: 16, lineHeight: 24, fontFamily: 'Inter_600SemiBold' },

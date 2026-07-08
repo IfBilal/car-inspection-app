@@ -1,5 +1,6 @@
 import { RefreshControl, StyleSheet, View } from 'react-native';
 import { router } from 'expo-router';
+import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 import { ClipboardList, PlusCircle, Search } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Screen } from '@/components/ui/Screen';
@@ -46,7 +47,7 @@ export default function HomeScreen() {
   return (
     <Screen refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
       {/* Header */}
-      <View style={styles.header}>
+      <Animated.View entering={FadeInDown.springify().damping(16)} style={styles.header}>
         <View style={{ flex: 1 }}>
           <AppText variant="caption" color="secondary">
             {greeting()} {firstName}
@@ -63,11 +64,11 @@ export default function HomeScreen() {
             {(firstName[0] ?? '?').toUpperCase()}
           </AppText>
         </ScalePressable>
-      </View>
+      </Animated.View>
 
       {/* Action cards */}
-      <View style={styles.actions}>
-        <ScalePressable onPress={startInspection} style={styles.actionWrap}>
+      <Animated.View entering={FadeInDown.springify().damping(16).delay(100)} style={styles.actions}>
+        <ScalePressable onPress={startInspection} style={[styles.actionWrap, styles.actionGlow]}>
           <LinearGradient
             colors={[colors.primary, colors.primaryPressed]}
             start={{ x: 0, y: 0 }}
@@ -93,11 +94,11 @@ export default function HomeScreen() {
           </View>
           <AppText variant="bodyStrong">Find{'\n'}Vehicle</AppText>
         </ScalePressable>
-      </View>
+      </Animated.View>
 
       {/* Drafts */}
       {drafts.data && drafts.data.length > 0 ? (
-        <>
+        <Animated.View entering={FadeInUp.springify().damping(16).delay(180)}>
           <AppText variant="micro" color="tertiary" style={styles.sectionHeader}>
             Continue inspection
           </AppText>
@@ -114,13 +115,14 @@ export default function HomeScreen() {
               />
             ))}
           </View>
-        </>
+        </Animated.View>
       ) : null}
 
       {/* Recent */}
-      <AppText variant="micro" color="tertiary" style={styles.sectionHeader}>
-        Recent inspections
-      </AppText>
+      <Animated.View entering={FadeInUp.springify().damping(16).delay(260)}>
+        <AppText variant="micro" color="tertiary" style={styles.sectionHeader}>
+          Recent inspections
+        </AppText>
       {recent.isPending ? (
         <Card>
           <View style={{ gap: 12 }}>
@@ -158,6 +160,7 @@ export default function HomeScreen() {
           onAction={startInspection}
         />
       )}
+      </Animated.View>
     </Screen>
   );
 }
@@ -196,6 +199,14 @@ const styles = StyleSheet.create({
   avatar: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center' },
   actions: { flexDirection: 'row', gap: 12 },
   actionWrap: { flex: 1, borderRadius: 20, overflow: 'hidden' },
+  actionGlow: {
+    overflow: 'visible',
+    shadowColor: '#16A34A',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.35,
+    shadowRadius: 14,
+    elevation: 8,
+  },
   actionCard: {
     minHeight: 120,
     borderRadius: 20,
