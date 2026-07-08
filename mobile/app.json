@@ -37,8 +37,7 @@
           }
         }
       ],
-      "expo-secure-store",
-      "expo-sharing"
+      "expo-secure-store"
     ],
     "experiments": {
       "typedRoutes": true,
