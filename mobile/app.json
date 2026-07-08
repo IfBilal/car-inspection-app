@@ -1,0 +1,48 @@
+{
+  "expo": {
+    "name": "CarInspect Pro",
+    "slug": "carinspect-pro",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "scheme": "carinspect",
+    "userInterfaceStyle": "automatic",
+    "ios": {
+      "bundleIdentifier": "com.carinspect.pro",
+      "supportsTablet": false
+    },
+    "android": {
+      "package": "com.carinspect.pro",
+      "adaptiveIcon": {
+        "backgroundColor": "#14532D",
+        "foregroundImage": "./assets/images/android-icon-foreground.png",
+        "monochromeImage": "./assets/images/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "output": "static",
+      "favicon": "./assets/images/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#F7F8F7",
+          "image": "./assets/images/splash-icon.png",
+          "imageWidth": 96,
+          "dark": {
+            "backgroundColor": "#0C0F0D"
+          }
+        }
+      ],
+      "expo-secure-store",
+      "expo-sharing"
+    ],
+    "experiments": {
+      "typedRoutes": true,
+      "reactCompiler": true
+    }
+  }
+}
