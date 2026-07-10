@@ -14,7 +14,7 @@
     "android": {
       "package": "com.carinspect.pro",
       "adaptiveIcon": {
-        "backgroundColor": "#14532D",
+        "backgroundColor": "#7F1D1D",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
@@ -29,11 +29,11 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#F7F8F7",
+          "backgroundColor": "#F8F7F7",
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 96,
           "dark": {
-            "backgroundColor": "#0C0F0D"
+            "backgroundColor": "#0F0C0C"
           }
         }
       ],

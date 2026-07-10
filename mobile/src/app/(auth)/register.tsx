@@ -163,7 +163,7 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255,255,255,0.12)',
     marginBottom: 24,
   },
-  eyebrow: { color: '#4ADE80', marginBottom: 6, letterSpacing: 2 },
+  eyebrow: { color: '#F87171', marginBottom: 6, letterSpacing: 2 },
   title: { color: '#FFFFFF', fontSize: 34, lineHeight: 40, letterSpacing: -0.8 },
   card: {
     marginTop: 28,

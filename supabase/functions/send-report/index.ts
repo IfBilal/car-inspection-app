@@ -170,7 +170,7 @@ Deno.serve(async (req) => {
   const stars = '★'.repeat(insp.overall_rating ?? 0) + '☆'.repeat(5 - (insp.overall_rating ?? 0));
   const html = `
   <div style="font-family: Arial, Helvetica, sans-serif; max-width: 560px; margin: 0 auto; color: #171D19;">
-    <h2 style="color: #14532D; border-bottom: 3px solid #16A34A; padding-bottom: 8px;">${companyName}</h2>
+    <h2 style="color: #7F1D1D; border-bottom: 3px solid #DC2626; padding-bottom: 8px;">${companyName}</h2>
     <p>Hi ${firstName},</p>
     <p>Thanks for bringing your <strong>${vehicleTitle}</strong> in on ${dateStr}.
        The full inspection report is attached as a PDF.</p>

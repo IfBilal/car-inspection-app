@@ -16,7 +16,7 @@ type Props = TextInputProps & {
 const GLASS = {
   bg: 'rgba(255,255,255,0.07)',
   border: 'rgba(255,255,255,0.16)',
-  borderFocus: '#22C55E',
+  borderFocus: '#EF4444',
   text: '#F2F5F2',
   label: 'rgba(255,255,255,0.72)',
   placeholder: 'rgba(255,255,255,0.40)',
@@ -86,7 +86,7 @@ export const Input = forwardRef<TextInput, Props>(function Input(
             onBlur?.(e);
           }}
           placeholderTextColor={palette.placeholder}
-          selectionColor={glass ? '#22C55E' : colors.primary}
+          selectionColor={glass ? '#EF4444' : colors.primary}
           style={[type.body, styles.input, { color: palette.text }, style]}
         />
         {suffix ? (

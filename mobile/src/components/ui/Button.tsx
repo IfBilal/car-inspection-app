@@ -63,7 +63,7 @@ export function Button({
         ]}
       >
         <LinearGradient
-          colors={['#22C55E', '#15803D']}
+          colors={['#EF4444', '#B91C1C']}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={[styles.base, { height, borderRadius: radii.button }]}
@@ -114,7 +114,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   glow: {
-    shadowColor: '#16A34A',
+    shadowColor: '#DC2626',
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.45,
     shadowRadius: 14,

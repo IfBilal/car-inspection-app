@@ -50,7 +50,7 @@ export function AuthBackdrop({ children }: { children: ReactNode }) {
   return (
     <View style={styles.root}>
       <LinearGradient
-        colors={['#03150A', '#06211199', '#0A0E0B']}
+        colors={['#150404', '#21070799', '#0E0B0B']}
         locations={[0, 0.45, 1]}
         style={StyleSheet.absoluteFill}
       />
@@ -63,7 +63,7 @@ export function AuthBackdrop({ children }: { children: ReactNode }) {
         ]}
       >
         <LinearGradient
-          colors={['#16A34A55', '#16A34A18', 'transparent']}
+          colors={['#DC262655', '#DC262618', 'transparent']}
           locations={[0, 0.5, 1]}
           style={styles.orbFill}
         />
@@ -82,7 +82,7 @@ export function AuthBackdrop({ children }: { children: ReactNode }) {
         ]}
       >
         <LinearGradient
-          colors={['#22C55E33', '#22C55E10', 'transparent']}
+          colors={['#EF444433', '#EF444410', 'transparent']}
           locations={[0, 0.55, 1]}
           style={styles.orbFill}
         />
@@ -95,8 +95,8 @@ export function AuthBackdrop({ children }: { children: ReactNode }) {
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: '#0A0E0B' },
+  root: { flex: 1, backgroundColor: '#0E0B0B' },
   orb: { position: 'absolute', overflow: 'hidden' },
   orbFill: { flex: 1, borderRadius: 9999 },
-  hairline: { position: 'absolute', height: StyleSheet.hairlineWidth, backgroundColor: '#22C55E22' },
+  hairline: { position: 'absolute', height: StyleSheet.hairlineWidth, backgroundColor: '#EF444422' },
 });

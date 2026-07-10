@@ -201,7 +201,7 @@ const styles = StyleSheet.create({
   actionWrap: { flex: 1, borderRadius: 20, overflow: 'hidden' },
   actionGlow: {
     overflow: 'visible',
-    shadowColor: '#16A34A',
+    shadowColor: '#DC2626',
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.35,
     shadowRadius: 14,

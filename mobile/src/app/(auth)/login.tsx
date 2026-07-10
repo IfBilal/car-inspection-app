@@ -45,7 +45,7 @@ export default function LoginScreen() {
         >
           {/* Brand */}
           <Animated.View entering={FadeIn.duration(350)} style={styles.logoWrap}>
-            <LinearGradient colors={['#22C55E', '#15803D']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.logo}>
+            <LinearGradient colors={['#EF4444', '#B91C1C']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.logo}>
               <ShieldCheck size={30} color="#FFFFFF" strokeWidth={2.2} />
             </LinearGradient>
           </Animated.View>
@@ -124,7 +124,7 @@ const styles = StyleSheet.create({
   flex: { flex: 1 },
   scroll: { flexGrow: 1, paddingHorizontal: 24 },
   logoWrap: {
-    shadowColor: '#22C55E',
+    shadowColor: '#EF4444',
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.5,
     shadowRadius: 20,
@@ -134,7 +134,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   logo: { width: 60, height: 60, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
-  eyebrow: { color: '#4ADE80', marginBottom: 6, letterSpacing: 2 },
+  eyebrow: { color: '#F87171', marginBottom: 6, letterSpacing: 2 },
   title: { color: '#FFFFFF', fontSize: 36, lineHeight: 42, letterSpacing: -0.8 },
   subtitle: { color: 'rgba(255,255,255,0.60)', marginTop: 6 },
   card: {
@@ -146,8 +146,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.10)',
   },
-  forgot: { alignSelf: 'flex-end', color: '#4ADE80' },
+  forgot: { alignSelf: 'flex-end', color: '#F87171' },
   footer: { alignItems: 'center', marginTop: 28 },
   footerText: { color: 'rgba(255,255,255,0.55)' },
-  footerLink: { color: '#4ADE80' },
+  footerLink: { color: '#F87171' },
 });

@@ -28,20 +28,20 @@ export type ColorTokens = {
 };
 
 export const lightColors: ColorTokens = {
-  primary: '#16A34A',
-  primaryPressed: '#15803D',
-  primarySoft: '#DCFCE7',
-  primaryText: '#14532D',
+  primary: '#DC2626',
+  primaryPressed: '#B91C1C',
+  primarySoft: '#FEE2E2',
+  primaryText: '#7F1D1D',
 
-  canvas: '#F7F8F7',
+  canvas: '#F8F7F7',
   surface: '#FFFFFF',
   surfaceRaised: '#FFFFFF',
-  border: '#E6E9E6',
-  divider: '#EFF1EF',
+  border: '#E9E6E6',
+  divider: '#F1EFEF',
 
-  textPrimary: '#171D19',
-  textSecondary: '#5C665F',
-  textTertiary: '#8B948D',
+  textPrimary: '#1D1717',
+  textSecondary: '#665C5C',
+  textTertiary: '#948B8B',
   textOnPrimary: '#FFFFFF',
 
   pass: '#16A34A',
@@ -57,21 +57,21 @@ export const lightColors: ColorTokens = {
 };
 
 export const darkColors: ColorTokens = {
-  primary: '#22C55E',
-  primaryPressed: '#16A34A',
-  primarySoft: '#14532D33',
-  primaryText: '#BBF7D0',
+  primary: '#EF4444',
+  primaryPressed: '#DC2626',
+  primarySoft: '#7F1D1D33',
+  primaryText: '#FECACA',
 
-  canvas: '#0C0F0D',
-  surface: '#161A17',
-  surfaceRaised: '#1D231F',
-  border: '#2A322C',
-  divider: '#222824',
+  canvas: '#0F0C0C',
+  surface: '#1A1616',
+  surfaceRaised: '#231D1D',
+  border: '#322A2A',
+  divider: '#282222',
 
-  textPrimary: '#F2F5F2',
-  textSecondary: '#A7B0A9',
-  textTertiary: '#6E776F',
-  textOnPrimary: '#052E12',
+  textPrimary: '#F5F2F2',
+  textSecondary: '#B0A7A7',
+  textTertiary: '#776E6E',
+  textOnPrimary: '#2E0505',
 
   pass: '#22C55E',
   passSoft: '#14532D4D',
@@ -127,14 +127,14 @@ export type TypeVariant = keyof typeof type;
 
 export const shadows = {
   card: {
-    shadowColor: '#171D19',
+    shadowColor: '#1D1717',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.06,
     shadowRadius: 8,
     elevation: 2,
   },
   sheet: {
-    shadowColor: '#171D19',
+    shadowColor: '#1D1717',
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.16,
     shadowRadius: 28,

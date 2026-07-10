@@ -33,8 +33,9 @@ export type ReportData = {
   signature: Uint8Array | null; // PNG bytes
 };
 
-const GREEN = rgb(0.086, 0.639, 0.29); // #16A34A
-const GREEN_DARK = rgb(0.078, 0.325, 0.176); // #14532D
+const GREEN = rgb(0.086, 0.639, 0.29); // #16A34A — pass semantics only
+const BRAND = rgb(0.863, 0.149, 0.149); // #DC2626
+const BRAND_DARK = rgb(0.498, 0.114, 0.114); // #7F1D1D
 const RED = rgb(0.863, 0.149, 0.149);
 const AMBER = rgb(0.851, 0.467, 0.024);
 const GRAY = rgb(0.545, 0.58, 0.553);
@@ -90,7 +91,7 @@ class Painter {
     });
     if (opts.advance !== false) this.y -= size + 6;
   }
-  rule(color: RGB = GREEN, thickness = 2) {
+  rule(color: RGB = BRAND, thickness = 2) {
     this.page.drawLine({
       start: { x: MARGIN, y: this.y },
       end: { x: A4[0] - MARGIN, y: this.y },
@@ -171,7 +172,7 @@ export async function renderReport(data: ReportData): Promise<Uint8Array> {
   const p = new Painter(doc, font, bold);
 
   // ===== Cover =====
-  p.text(data.companyName || 'Vehicle Inspections', { size: 16, bold: true, color: GREEN_DARK });
+  p.text(data.companyName || 'Vehicle Inspections', { size: 16, bold: true, color: BRAND_DARK });
   p.text('Pre-Purchase Vehicle Inspection Report', { size: 11, color: TEXT_SOFT });
   p.gap(2);
   p.rule();
@@ -233,7 +234,7 @@ export async function renderReport(data: ReportData): Promise<Uint8Array> {
       },
       { pass: 0, fail: 0, repair: 0, na: 0 } as Record<string, number>,
     );
-    p.text(section.title.toUpperCase(), { size: 11, bold: true, color: GREEN_DARK, advance: false });
+    p.text(section.title.toUpperCase(), { size: 11, bold: true, color: BRAND_DARK, advance: false });
     p.page.drawText(`${tally.pass}P  ${tally.repair}R  ${tally.fail}F  ${tally.na}NA`, {
       x: A4[0] - MARGIN - 90,
       y: p.y - 11,
@@ -272,7 +273,7 @@ export async function renderReport(data: ReportData): Promise<Uint8Array> {
   // ===== Photos =====
   if (data.photos.length > 0) {
     p.addPage();
-    p.text('PHOTOS', { size: 11, bold: true, color: GREEN_DARK });
+    p.text('PHOTOS', { size: 11, bold: true, color: BRAND_DARK });
     p.rule();
     const cell = (contentWidth - 16) / 2;
     let col = 0;

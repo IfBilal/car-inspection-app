@@ -53,7 +53,7 @@ export default function ForgotScreen() {
           {sent ? (
             <Animated.View entering={FadeIn.duration(350)} style={styles.sentWrap}>
               <Animated.View style={styles.sentIcon}>
-                <MailCheck size={30} color="#4ADE80" strokeWidth={1.75} />
+                <MailCheck size={30} color="#F87171" strokeWidth={1.75} />
               </Animated.View>
               <AppText variant="title1" style={styles.title}>
                 Check your inbox
@@ -106,7 +106,7 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255,255,255,0.12)',
     marginBottom: 24,
   },
-  eyebrow: { color: '#4ADE80', marginBottom: 6, letterSpacing: 2 },
+  eyebrow: { color: '#F87171', marginBottom: 6, letterSpacing: 2 },
   title: { color: '#FFFFFF', letterSpacing: -0.8 },
   subtitle: { color: 'rgba(255,255,255,0.60)', textAlign: 'center' },
   card: {
@@ -125,9 +125,9 @@ const styles = StyleSheet.create({
     borderRadius: 36,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(34,197,94,0.12)',
+    backgroundColor: 'rgba(239,68,68,0.12)',
     borderWidth: 1,
-    borderColor: 'rgba(34,197,94,0.30)',
+    borderColor: 'rgba(239,68,68,0.30)',
     marginBottom: 8,
   },
 });
