@@ -14,9 +14,10 @@ type WizardState = {
   prefillIdentifier: string | null;
   results: WizardResults;
   summary: {
-    rating: number;
+    score: number;
     recommendation: Recommendation | null;
     notes: string;
+    repairCost: string;
     signaturePngB64: string | null;
   };
 
@@ -28,7 +29,7 @@ type WizardState = {
   reset: () => void;
 };
 
-const emptySummary = { rating: 0, recommendation: null, notes: '', signaturePngB64: null };
+const emptySummary = { score: 0, recommendation: null, notes: '', repairCost: '', signaturePngB64: null };
 
 export const useWizardStore = create<WizardState>((set, get) => ({
   inspectionId: null,
@@ -52,9 +53,10 @@ export const useWizardStore = create<WizardState>((set, get) => ({
       vehicleId: full.vehicle?.id ?? full.vehicle_id,
       results,
       summary: {
-        rating: full.overall_rating ?? 0,
+        score: full.overall_score ?? 0,
         recommendation: full.recommendation,
         notes: full.inspector_notes ?? '',
+        repairCost: full.estimated_repair_cost != null ? String(full.estimated_repair_cost) : '',
         signaturePngB64: null,
       },
     });

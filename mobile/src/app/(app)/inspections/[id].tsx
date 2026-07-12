@@ -12,7 +12,6 @@ import { Card } from '@/components/ui/Card';
 import { Chip } from '@/components/ui/Chip';
 import { ScalePressable } from '@/components/ui/Pressable';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { Stars } from '@/components/ui/Stars';
 import { useToast } from '@/components/ui/Toast';
 import { PlateBadge } from '@/components/vehicle/PlateBadge';
 import { vehicleTitle } from '@/components/vehicle/VehicleCard';
@@ -20,7 +19,7 @@ import { useTheme } from '@/theme/ThemeProvider';
 import { useChecklist, useInspectionFull } from '@/lib/queries';
 import { useSendReport } from '@/lib/mutations';
 import { signedPhotoUrl } from '@/lib/photos';
-import { formatDate, RECOMMENDATION_LABEL, RECOMMENDATION_TONE } from '@/lib/format';
+import { formatDate, RECOMMENDATION_LABEL, RECOMMENDATION_TONE, scoreBand } from '@/lib/format';
 import type { ItemResult } from '@/lib/types';
 
 const RESULT_LETTER: Record<ItemResult, string> = { pass: 'P', fail: 'F', na: 'NA', repair: 'R' };
@@ -147,7 +146,12 @@ export default function InspectionDetail() {
               {full.data.inspector?.full_name}
             </AppText>
             <View style={styles.heroBottom}>
-              {full.data.overall_rating ? <Stars value={full.data.overall_rating} size={18} readonly /> : null}
+              {full.data.overall_score ? (
+                <Chip
+                  label={`${full.data.overall_score}/10 · ${scoreBand(full.data.overall_score).label}`}
+                  tone={scoreBand(full.data.overall_score).tone}
+                />
+              ) : null}
               {full.data.recommendation ? (
                 <Chip
                   label={RECOMMENDATION_LABEL[full.data.recommendation]}

@@ -3,10 +3,9 @@ import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet } from 'react-na
 import { Link } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
-import { LinearGradient } from 'expo-linear-gradient';
+import { Image } from 'react-native';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ShieldCheck } from 'lucide-react-native';
 import { AuthBackdrop } from '@/components/auth/AuthBackdrop';
 import { AppText } from '@/components/ui/AppText';
 import { Button } from '@/components/ui/Button';
@@ -45,9 +44,7 @@ export default function LoginScreen() {
         >
           {/* Brand */}
           <Animated.View entering={FadeIn.duration(350)} style={styles.logoWrap}>
-            <LinearGradient colors={['#EF4444', '#B91C1C']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.logo}>
-              <ShieldCheck size={30} color="#FFFFFF" strokeWidth={2.2} />
-            </LinearGradient>
+            <Image source={require('../../../assets/images/logo.png')} style={styles.logo} resizeMode="contain" />
           </Animated.View>
           <Animated.View entering={FadeInDown.duration(350).delay(80)}>
             <AppText variant="micro" style={styles.eyebrow}>
@@ -123,17 +120,8 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   flex: { flex: 1 },
   scroll: { flexGrow: 1, paddingHorizontal: 24 },
-  logoWrap: {
-    shadowColor: '#EF4444',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.5,
-    shadowRadius: 20,
-    elevation: 10,
-    alignSelf: 'flex-start',
-    borderRadius: 18,
-    marginBottom: 20,
-  },
-  logo: { width: 60, height: 60, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
+  logoWrap: { alignSelf: 'flex-start', marginBottom: 16 },
+  logo: { width: 96, height: 96 },
   eyebrow: { color: '#F87171', marginBottom: 6, letterSpacing: 2 },
   title: { color: '#FFFFFF', fontSize: 36, lineHeight: 42, letterSpacing: -0.8 },
   subtitle: { color: 'rgba(255,255,255,0.60)', marginTop: 6 },

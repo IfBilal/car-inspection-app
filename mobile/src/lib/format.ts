@@ -24,16 +24,24 @@ export function timeAgo(iso: string | null | undefined): string {
 }
 
 export const RECOMMENDATION_LABEL: Record<Recommendation, string> = {
-  recommended: 'Recommended',
-  recommended_with_repairs: 'With repairs',
-  not_recommended: 'Not recommended',
+  buy: 'Buy',
+  negotiate: 'Negotiate',
+  walk_away: 'Walk away',
 };
 
 export const RECOMMENDATION_TONE: Record<Recommendation, ChipTone> = {
-  recommended: 'pass',
-  recommended_with_repairs: 'repair',
-  not_recommended: 'fail',
+  buy: 'pass',
+  negotiate: 'repair',
+  walk_away: 'fail',
 };
+
+/** Score band per report.pdf: 9-10 Excellent, 7-8 Good, 5-6 Fair, 1-4 Poor */
+export function scoreBand(score: number): { label: string; tone: ChipTone } {
+  if (score >= 9) return { label: 'Excellent', tone: 'pass' };
+  if (score >= 7) return { label: 'Good', tone: 'info' };
+  if (score >= 5) return { label: 'Fair', tone: 'repair' };
+  return { label: 'Poor', tone: 'fail' };
+}
 
 export function greeting(): string {
   const h = new Date().getHours();

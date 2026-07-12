@@ -1,14 +1,14 @@
 import { useMemo, useState } from 'react';
 import { Image, StyleSheet, View } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
-import { CheckCircle2, PenLine, TriangleAlert, Wrench, XCircle } from 'lucide-react-native';
+import { CheckCircle2, PenLine, TriangleAlert, XCircle } from 'lucide-react-native';
 import { Screen } from '@/components/ui/Screen';
 import { AppText } from '@/components/ui/AppText';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
+import { Chip } from '@/components/ui/Chip';
 import { Input } from '@/components/ui/Input';
 import { ScalePressable } from '@/components/ui/Pressable';
-import { Stars } from '@/components/ui/Stars';
 import { useToast } from '@/components/ui/Toast';
 import { WizardHeader } from '@/components/wizard/WizardHeader';
 import { SignaturePad } from '@/components/signature/SignaturePad';
@@ -18,13 +18,13 @@ import { useChecklist, useInspectionFull, useProfile } from '@/lib/queries';
 import { useSubmitInspection } from '@/lib/mutations';
 import { getAutosaveEngine } from '@/lib/autosave';
 import { useWizardStore } from '@/store/wizard';
-import { formatDate } from '@/lib/format';
+import { formatDate, scoreBand } from '@/lib/format';
 import type { Recommendation } from '@/lib/types';
 
-const RECOMMENDATIONS: { value: Recommendation; label: string; icon: any }[] = [
-  { value: 'recommended', label: 'Recommended', icon: CheckCircle2 },
-  { value: 'recommended_with_repairs', label: 'Recommended with repairs', icon: Wrench },
-  { value: 'not_recommended', label: 'Not recommended', icon: XCircle },
+const RECOMMENDATIONS: { value: Recommendation; label: string; sub: string; icon: any }[] = [
+  { value: 'buy', label: 'Buy', sub: 'The vehicle is in good condition and ready to purchase.', icon: CheckCircle2 },
+  { value: 'negotiate', label: 'Negotiate', sub: 'The vehicle has issues that should be addressed.', icon: TriangleAlert },
+  { value: 'walk_away', label: 'Walk away', sub: 'The vehicle has major issues or too many red flags.', icon: XCircle },
 ];
 
 export default function SummaryStep() {
@@ -44,17 +44,17 @@ export default function SummaryStep() {
 
   const tallies = useMemo(() => {
     const sections = checklist.data ?? [];
-    let unansweredIds: number[] = [];
+    const unansweredIds: number[] = [];
     const perSection = sections.map((s) => {
-      const t = { title: s.title, p: 0, f: 0, r: 0, na: 0, unanswered: 0 };
+      const t = { title: s.title, kind: s.kind, good: 0, warn: 0, bad: 0, na: 0, unanswered: 0 };
       for (const item of s.items) {
         const r = results[item.id]?.result;
         if (!r) {
           t.unanswered += 1;
           unansweredIds.push(item.id);
-        } else if (r === 'pass') t.p += 1;
-        else if (r === 'fail') t.f += 1;
-        else if (r === 'repair') t.r += 1;
+        } else if (r === 'pass') t.good += 1;
+        else if (r === 'repair') t.warn += 1;
+        else if (r === 'fail') t.bad += 1;
         else t.na += 1;
       }
       return t;
@@ -63,12 +63,11 @@ export default function SummaryStep() {
   }, [checklist.data, results]);
 
   const canSubmit =
-    summary.rating > 0 && summary.recommendation != null && summary.signaturePngB64 != null;
+    summary.score > 0 && summary.recommendation != null && summary.signaturePngB64 != null;
 
   const onSubmit = async () => {
     if (!canSubmit) return;
     setStage('saving');
-    // flush any pending result saves before completing
     const flushed = await getAutosaveEngine(id!).flush();
     if (!flushed) {
       setStage('idle');
@@ -77,9 +76,10 @@ export default function SummaryStep() {
     }
     submit.mutate(
       {
-        overall_rating: summary.rating,
+        overall_score: summary.score,
         recommendation: summary.recommendation!,
         inspector_notes: summary.notes,
+        estimated_repair_cost: summary.repairCost,
         signaturePngB64: summary.signaturePngB64!,
         unansweredItemIds: tallies.unansweredIds,
       },
@@ -92,6 +92,8 @@ export default function SummaryStep() {
       },
     );
   };
+
+  const band = summary.score > 0 ? scoreBand(summary.score) : null;
 
   return (
     <Screen
@@ -110,7 +112,7 @@ export default function SummaryStep() {
       <View style={styles.review}>
         <Card style={styles.reviewCard} onPress={() => router.push(`/(app)/inspection/${id}/client`)}>
           <AppText variant="micro" color="tertiary">
-            Client
+            Buyer
           </AppText>
           <AppText variant="bodyStrong" numberOfLines={1}>
             {full.data?.client?.full_name || '—'}
@@ -135,10 +137,10 @@ export default function SummaryStep() {
             <AppText variant="caption" style={{ flex: 1 }} numberOfLines={1}>
               {t.title}
             </AppText>
-            <AppText variant="caption" style={{ color: colors.pass }}>{`${t.p}P`}</AppText>
-            <AppText variant="caption" style={{ color: colors.repair }}>{`${t.r}R`}</AppText>
-            <AppText variant="caption" style={{ color: colors.fail }}>{`${t.f}F`}</AppText>
-            <AppText variant="caption" color="tertiary">{`${t.na}NA`}</AppText>
+            <AppText variant="caption" style={{ color: colors.pass }}>{t.good}</AppText>
+            <AppText variant="caption" style={{ color: colors.repair }}>{t.warn}</AppText>
+            <AppText variant="caption" style={{ color: colors.fail }}>{t.bad}</AppText>
+            <AppText variant="caption" color="tertiary">{t.na + t.unanswered}</AppText>
           </View>
         ))}
       </Card>
@@ -152,45 +154,86 @@ export default function SummaryStep() {
         </Card>
       ) : null}
 
-      {/* Rating */}
-      <AppText variant="micro" color="tertiary" style={styles.sectionLabel}>
-        Overall rating
-      </AppText>
-      <View style={styles.starsWrap}>
-        <Stars value={summary.rating} onChange={(n) => setSummary({ rating: n })} />
+      {/* Overall condition score */}
+      <View style={styles.scoreHeader}>
+        <AppText variant="micro" color="tertiary">
+          Overall condition score
+        </AppText>
+        {band ? <Chip label={`${summary.score}/10 · ${band.label}`} tone={band.tone} /> : null}
       </View>
+      <View style={styles.scoreRow}>
+        {Array.from({ length: 10 }, (_, i) => i + 1).map((n) => {
+          const selected = summary.score === n;
+          const tone = scoreBand(n);
+          const tint =
+            tone.tone === 'pass' ? colors.pass : tone.tone === 'info' ? colors.info : tone.tone === 'repair' ? colors.repair : colors.fail;
+          return (
+            <ScalePressable
+              key={n}
+              pressScale={0.88}
+              onPress={() => setSummary({ score: n })}
+              style={[
+                styles.scoreChip,
+                {
+                  borderColor: selected ? tint : colors.border,
+                  backgroundColor: selected ? tint : colors.surface,
+                },
+              ]}
+            >
+              <AppText
+                variant="bodyStrong"
+                style={{ color: selected ? '#FFFFFF' : colors.textSecondary }}
+              >
+                {n}
+              </AppText>
+            </ScalePressable>
+          );
+        })}
+      </View>
+      <AppText variant="caption" color="tertiary">
+        9–10 Excellent · 7–8 Good · 5–6 Fair · 1–4 Poor
+      </AppText>
 
-      {/* Recommendation */}
+      {/* Estimated repair cost */}
       <AppText variant="micro" color="tertiary" style={styles.sectionLabel}>
-        Recommendation
+        Estimated repair costs
+      </AppText>
+      <Input
+        placeholder="0"
+        keyboardType="decimal-pad"
+        suffix="$"
+        defaultValue={summary.repairCost}
+        onChangeText={(t) => setSummary({ repairCost: t })}
+        helper="Total estimated repair cost — leave empty if none"
+      />
+
+      {/* Final recommendation */}
+      <AppText variant="micro" color="tertiary" style={styles.sectionLabel}>
+        Final recommendation
       </AppText>
       <View style={{ gap: 8 }}>
         {RECOMMENDATIONS.map((r) => {
           const selected = summary.recommendation === r.value;
-          const tint =
-            r.value === 'recommended' ? colors.pass : r.value === 'not_recommended' ? colors.fail : colors.repair;
+          const tint = r.value === 'buy' ? colors.pass : r.value === 'walk_away' ? colors.fail : colors.repair;
+          const soft = r.value === 'buy' ? colors.passSoft : r.value === 'walk_away' ? colors.failSoft : colors.repairSoft;
           return (
             <ScalePressable
               key={r.value}
               onPress={() => setSummary({ recommendation: r.value })}
               style={[
                 styles.recCard,
-                {
-                  borderColor: selected ? tint : colors.border,
-                  backgroundColor: selected
-                    ? r.value === 'recommended'
-                      ? colors.passSoft
-                      : r.value === 'not_recommended'
-                        ? colors.failSoft
-                        : colors.repairSoft
-                    : colors.surface,
-                },
+                { borderColor: selected ? tint : colors.border, backgroundColor: selected ? soft : colors.surface },
               ]}
             >
-              <r.icon size={20} color={tint} />
-              <AppText variant="bodyStrong" style={selected ? { color: tint } : undefined}>
-                {r.label}
-              </AppText>
+              <r.icon size={22} color={tint} />
+              <View style={{ flex: 1 }}>
+                <AppText variant="bodyStrong" style={selected ? { color: tint } : undefined}>
+                  {r.label}
+                </AppText>
+                <AppText variant="caption" color="secondary">
+                  {r.sub}
+                </AppText>
+              </View>
             </ScalePressable>
           );
         })}
@@ -198,10 +241,10 @@ export default function SummaryStep() {
 
       {/* Notes */}
       <AppText variant="micro" color="tertiary" style={styles.sectionLabel}>
-        Inspector notes
+        Notes / comments
       </AppText>
       <Input
-        placeholder="Anything the client should know…"
+        placeholder="Anything the buyer should know…"
         multiline
         numberOfLines={4}
         defaultValue={summary.notes}
@@ -211,7 +254,7 @@ export default function SummaryStep() {
 
       {/* Signature */}
       <AppText variant="micro" color="tertiary" style={styles.sectionLabel}>
-        Signature
+        Inspector signature
       </AppText>
       <ScalePressable
         onPress={() => setPadOpen(true)}
@@ -254,7 +297,22 @@ const styles = StyleSheet.create({
   tallyRow: { flexDirection: 'row', gap: 10, alignItems: 'center' },
   warn: { flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 12 },
   sectionLabel: { marginTop: 24, marginBottom: 8 },
-  starsWrap: { alignItems: 'center', paddingVertical: 8 },
+  scoreHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: 24,
+    marginBottom: 8,
+  },
+  scoreRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 8 },
+  scoreChip: {
+    width: 52,
+    height: 44,
+    borderRadius: 14,
+    borderWidth: 1.5,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   recCard: {
     flexDirection: 'row',
     alignItems: 'center',

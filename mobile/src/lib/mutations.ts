@@ -101,6 +101,7 @@ function vehicleRowFromForm(form: VehicleForm) {
     model: form.model,
     year: form.year ? Number(form.year) : null,
     colour: form.colour || null,
+    trim: form.trim || null,
     engine_size: form.engine_size || null,
     transmission: form.transmission || null,
     fuel_type: form.fuel_type || null,
@@ -192,9 +193,10 @@ export function useDeletePhoto(inspectionId: string) {
 }
 
 export type SubmitPayload = {
-  overall_rating: number;
+  overall_score: number;
   recommendation: Recommendation;
   inspector_notes: string;
+  estimated_repair_cost: string;
   signaturePngB64: string;
   /** item ids that are still unanswered — bulk-marked N/A at submit */
   unansweredItemIds: number[];
@@ -229,9 +231,12 @@ export function useSubmitInspection(inspectionId: string) {
       const { error } = await supabase
         .from('inspections')
         .update({
-          overall_rating: payload.overall_rating,
+          overall_score: payload.overall_score,
           recommendation: payload.recommendation,
           inspector_notes: payload.inspector_notes || null,
+          estimated_repair_cost: payload.estimated_repair_cost
+            ? Number(payload.estimated_repair_cost)
+            : null,
           signature_path: signaturePath,
           status: 'completed',
           completed_at: new Date().toISOString(),

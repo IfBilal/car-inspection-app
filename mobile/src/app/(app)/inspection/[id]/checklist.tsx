@@ -11,21 +11,29 @@ import { useToast } from '@/components/ui/Toast';
 import { WizardHeader } from '@/components/wizard/WizardHeader';
 import { ItemRow } from '@/components/checklist/ItemRow';
 import { useTheme } from '@/theme/ThemeProvider';
-import { useChecklist } from '@/lib/queries';
+import { useChecklist, useInspectionFull } from '@/lib/queries';
 import { useBulkResults } from '@/lib/mutations';
+import { ObdCard } from '@/components/checklist/ObdCard';
 import { getAutosaveEngine } from '@/lib/autosave';
 import { useWizardStore } from '@/store/wizard';
-import type { ChecklistItem, ChecklistSection } from '@/lib/types';
+import type { ChecklistItem, ChecklistSection, SectionKind } from '@/lib/types';
 
 type Row =
   | { type: 'header'; section: ChecklistSection; firstItemIndex: number }
-  | { type: 'item'; item: ChecklistItem };
+  | { type: 'item'; item: ChecklistItem; kind: SectionKind };
+
+const BULK_LABEL: Record<SectionKind, string> = {
+  status: 'Mark remaining OK',
+  passfail: 'Mark remaining Pass',
+  flags: 'Mark remaining No',
+};
 
 export default function ChecklistStep() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { colors } = useTheme();
   const toast = useToast();
   const checklist = useChecklist();
+  const full = useInspectionFull(id);
   const bulk = useBulkResults(id!);
   const listRef = useRef<FlashListRef<Row>>(null);
   const [activeSection, setActiveSection] = useState<number | null>(null);
@@ -40,7 +48,7 @@ export default function ChecklistStep() {
     for (const section of checklist.data ?? []) {
       sectionIndexMap.set(section.id, rows.length);
       rows.push({ type: 'header', section, firstItemIndex: rows.length + 1 });
-      for (const item of section.items) rows.push({ type: 'item', item });
+      for (const item of section.items) rows.push({ type: 'item', item, kind: section.kind });
       totalItems += section.items.length;
     }
     return { rows, totalItems, sectionIndexMap };
@@ -54,7 +62,8 @@ export default function ChecklistStep() {
     if (index != null) listRef.current?.scrollToIndex({ index, animated: true });
   };
 
-  const markRemainingPass = (section: ChecklistSection & { items: ChecklistItem[] }) => {
+  // "pass" maps to the good option of every kind: OK / Pass / No-flag.
+  const markRemainingGood = (section: ChecklistSection & { items: ChecklistItem[] }) => {
     const results = useWizardStore.getState().results;
     const remaining = section.items.filter((i) => !results[i.id]);
     if (remaining.length === 0) return;
@@ -64,7 +73,7 @@ export default function ChecklistStep() {
       remaining.map((i) => ({ item_id: i.id, result: 'pass' as const })),
       { onError: () => toast.show('error', 'Couldn’t save — check your connection') },
     );
-    toast.show('success', `${remaining.length} items marked as Pass`);
+    toast.show('success', `${remaining.length} items updated`);
   };
 
   const onContinue = () => {
@@ -156,19 +165,20 @@ export default function ChecklistStep() {
               const section = sections.find((s) => s.id === row.section.id)!;
               return (
                 <View style={[styles.sectionHeader, { backgroundColor: colors.canvas }]}>
-                  <AppText variant="micro" color="tertiary">
-                    {row.section.sort_order} · {row.section.title}
+                  <AppText variant="micro" color="tertiary" style={{ flexShrink: 1 }}>
+                    {row.section.title}
                   </AppText>
-                  <ScalePressable onPress={() => markRemainingPass(section)} hitSlop={8}>
+                  <ScalePressable onPress={() => markRemainingGood(section)} hitSlop={8}>
                     <AppText variant="caption" color="brand">
-                      Mark remaining as Pass
+                      {BULK_LABEL[row.section.kind]}
                     </AppText>
                   </ScalePressable>
                 </View>
               );
             }
-            return <ItemRow item={row.item} inspectionId={id!} />;
+            return <ItemRow item={row.item} kind={row.kind} inspectionId={id!} />;
           }}
+          ListFooterComponent={full.data ? <ObdCard inspection={full.data} /> : null}
           onViewableItemsChanged={({ viewableItems }) => {
             const first = viewableItems.find((v) => v.item?.type === 'header' || v.item?.type === 'item');
             if (!first?.item) return;

@@ -51,6 +51,7 @@ export default function VehicleStep() {
       model: '',
       year: '',
       colour: '',
+      trim: '',
       engine_size: '',
       transmission: '',
       fuel_type: '',
@@ -73,6 +74,7 @@ export default function VehicleStep() {
       model: v.model,
       year: v.year != null ? String(v.year) : '',
       colour: v.colour ?? '',
+      trim: v.trim ?? '',
       engine_size: v.engine_size ?? '',
       transmission: v.transmission ?? '',
       fuel_type: v.fuel_type ?? '',
@@ -118,6 +120,7 @@ export default function VehicleStep() {
       model: dupeCandidate.model,
       year: dupeCandidate.year != null ? String(dupeCandidate.year) : '',
       colour: dupeCandidate.colour ?? '',
+      trim: dupeCandidate.trim ?? '',
       engine_size: dupeCandidate.engine_size ?? '',
       transmission: dupeCandidate.transmission ?? '',
       fuel_type: dupeCandidate.fuel_type ?? '',
@@ -314,6 +317,13 @@ export default function VehicleStep() {
         </View>
         <Controller
           control={control}
+          name="trim"
+          render={({ field }) => (
+            <Input label="Trim / model variant" value={field.value ?? ''} onChangeText={field.onChange} />
+          )}
+        />
+        <Controller
+          control={control}
           name="engine_size"
           render={({ field }) => (
             <Input label="Engine size (e.g. 1.8L)" value={field.value ?? ''} onChangeText={field.onChange} />
@@ -325,7 +335,7 @@ export default function VehicleStep() {
           render={({ field }) => (
             <ChipSelector
               label="Transmission"
-              options={['Automatic', 'Manual', 'CVT', 'DCT']}
+              options={['Automatic', 'Manual', 'Other']}
               value={field.value}
               onChange={field.onChange}
             />
@@ -337,7 +347,7 @@ export default function VehicleStep() {
           render={({ field }) => (
             <ChipSelector
               label="Fuel type"
-              options={['Petrol', 'Diesel', 'Hybrid', 'Electric', 'LPG']}
+              options={['Gasoline', 'Diesel', 'Hybrid', 'Electric']}
               value={field.value}
               onChange={field.onChange}
             />
@@ -385,7 +395,7 @@ export default function VehicleStep() {
           name="purchase_price"
           render={({ field }) => (
             <Input
-              label="Purchase price (optional)"
+              label="Asking price (optional)"
               keyboardType="decimal-pad"
               value={String(field.value ?? '')}
               onChangeText={field.onChange}

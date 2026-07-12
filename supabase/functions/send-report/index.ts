@@ -7,9 +7,9 @@ import { renderReport, type ReportData } from './pdf.ts';
 type Body = { inspection_id?: string; resend?: boolean; override_email?: string };
 
 const REC_SENTENCE = {
-  recommended: 'The vehicle is recommended.',
-  recommended_with_repairs: 'The vehicle is recommended with repairs.',
-  not_recommended: 'The vehicle is not recommended.',
+  buy: 'Recommendation: BUY — the vehicle is in good condition and ready to purchase.',
+  negotiate: 'Recommendation: NEGOTIATE — the vehicle has issues that should be addressed.',
+  walk_away: 'Recommendation: WALK AWAY — the vehicle has major issues or too many red flags.',
 } as const;
 
 function fail(stage: string, message: string, status = 500) {
@@ -55,6 +55,7 @@ Deno.serve(async (req) => {
   if (rErr || itErr || sErr) return fail('load', rErr?.message ?? itErr?.message ?? sErr?.message ?? 'load failed');
 
   const resultByItem = new Map<number, { result: ReportData['sections'][0]['items'][0]['result']; note: string | null }>();
+
   for (const r of results ?? []) resultByItem.set(r.item_id, { result: r.result, note: r.note });
 
   const dateStr = new Date(insp.completed_at ?? insp.created_at).toLocaleDateString('en-GB', {
@@ -88,44 +89,48 @@ Deno.serve(async (req) => {
 
     const v = insp.vehicle ?? {};
     const reportData: ReportData = {
-      reportId: inspectionId.slice(0, 8).toUpperCase(),
+      inspectionId: inspectionId.slice(0, 8).toUpperCase(),
       date: dateStr,
       companyName,
       inspectorName: insp.inspector?.full_name ?? '',
-      client: {
-        name: insp.client?.full_name ?? '',
-        email: insp.client?.email ?? '',
-        phone: insp.client?.phone ?? '',
-        address: insp.client?.address ?? '',
-      },
+      buyerName: insp.client?.full_name ?? '',
+      sellerName: insp.seller ?? '',
       vehicle: {
-        title: [v.year, v.make, v.model].filter(Boolean).join(' '),
+        year: v.year != null ? String(v.year) : '',
+        make: v.make ?? '',
+        model: v.model ?? '',
+        trim: v.trim ?? '',
+        vin: v.vin ?? v.chassis_number ?? '',
         plate: v.registration_plate ?? '',
-        vin: v.vin ?? '',
-        chassis: v.chassis_number ?? '',
-        colour: v.colour ?? '',
         odometer: insp.odometer_km != null ? `${insp.odometer_km} km` : '',
         transmission: v.transmission ?? '',
-        fuel: v.fuel_type ?? '',
-        engine: v.engine_size ?? '',
-        drive: v.drive_type ?? '',
-        seller: insp.seller ?? '',
-        price: insp.purchase_price != null ? String(insp.purchase_price) : '',
+        drivetrain: v.drive_type ?? '',
+        exteriorColor: v.colour ?? '',
+        fuelType: v.fuel_type ?? '',
+        askingPrice: insp.purchase_price != null ? String(insp.purchase_price) : '',
       },
-      rating: insp.overall_rating ?? 0,
-      recommendation: insp.recommendation ?? 'recommended_with_repairs',
-      notes: insp.inspector_notes ?? '',
       sections: (sections ?? []).map((s) => ({
         title: s.title,
+        kind: s.kind,
         items: (items ?? [])
           .filter((i) => i.section_id === s.id)
           .map((i) => ({
             number: i.item_number,
             label: i.label,
+            description: i.description ?? null,
             result: resultByItem.get(i.id)?.result ?? null,
             note: resultByItem.get(i.id)?.note ?? null,
           })),
       })),
+      obd: {
+        ready: insp.obd_ready,
+        codes: insp.obd_codes ?? '',
+        notes: insp.obd_notes ?? '',
+      },
+      score: insp.overall_score ?? 0,
+      estimatedRepairCost: insp.estimated_repair_cost != null ? String(insp.estimated_repair_cost) : '',
+      recommendation: insp.recommendation ?? 'negotiate',
+      notes: insp.inspector_notes ?? '',
       photos: photoBytes,
       signature,
     };
@@ -157,7 +162,7 @@ Deno.serve(async (req) => {
   const v = insp.vehicle ?? {};
   const vehicleTitle = [v.year, v.make, v.model].filter(Boolean).join(' ');
   const firstName = (insp.client?.full_name ?? '').split(' ')[0] || 'there';
-  const recommendation = insp.recommendation ?? 'recommended_with_repairs';
+  const recommendation = insp.recommendation ?? 'negotiate';
   const port = Number(Deno.env.get('SMTP_PORT') ?? '465');
 
   const transporter = nodemailer.createTransport({
@@ -167,7 +172,7 @@ Deno.serve(async (req) => {
     auth: { user: smtpUser, pass: smtpPass },
   });
 
-  const stars = '★'.repeat(insp.overall_rating ?? 0) + '☆'.repeat(5 - (insp.overall_rating ?? 0));
+  const scoreLine = insp.overall_score != null ? `Overall condition score: ${insp.overall_score}/10` : '';
   const html = `
   <div style="font-family: Arial, Helvetica, sans-serif; max-width: 560px; margin: 0 auto; color: #171D19;">
     <h2 style="color: #7F1D1D; border-bottom: 3px solid #DC2626; padding-bottom: 8px;">${companyName}</h2>
@@ -175,7 +180,7 @@ Deno.serve(async (req) => {
     <p>Thanks for bringing your <strong>${vehicleTitle}</strong> in on ${dateStr}.
        The full inspection report is attached as a PDF.</p>
     <div style="background: #F7F8F7; border: 1px solid #E6E9E6; border-radius: 12px; padding: 16px; margin: 16px 0;">
-      <div style="color: #F59E0B; font-size: 18px; letter-spacing: 2px;">${stars}</div>
+      <div style="font-weight: bold;">${scoreLine}</div>
       <div style="font-weight: bold; margin-top: 6px;">${REC_SENTENCE[recommendation]}</div>
     </div>
     <p>Questions? Just reply to this email.</p>
@@ -188,7 +193,7 @@ Deno.serve(async (req) => {
       from: `"${Deno.env.get('SMTP_FROM_NAME') ?? companyName}" <${Deno.env.get('SMTP_FROM_ADDRESS') ?? smtpUser}>`,
       to: toEmail,
       subject: `Vehicle Inspection Report — ${vehicleTitle} (${plateOrId})`,
-      text: `Hi ${firstName},\n\nThanks for bringing your ${vehicleTitle} in on ${dateStr}. ${REC_SENTENCE[recommendation]}\n\nThe full inspection report is attached as a PDF.\n\n${insp.inspector?.full_name ?? ''}\n${companyName}`,
+      text: `Hi ${firstName},\n\nThanks for bringing your ${vehicleTitle} in on ${dateStr}. ${scoreLine}. ${REC_SENTENCE[recommendation]}\n\nThe full inspection report is attached as a PDF.\n\n${insp.inspector?.full_name ?? ''}\n${companyName}`,
       html,
       attachments: [
         {

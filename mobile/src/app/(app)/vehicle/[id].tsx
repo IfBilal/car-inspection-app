@@ -10,7 +10,6 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { ListRow } from '@/components/ui/ListRow';
 import { ScalePressable } from '@/components/ui/Pressable';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { Stars } from '@/components/ui/Stars';
 import { useToast } from '@/components/ui/Toast';
 import { PlateBadge } from '@/components/vehicle/PlateBadge';
 import { vehicleTitle } from '@/components/vehicle/VehicleCard';
@@ -108,7 +107,9 @@ export default function VehicleProfile() {
                   <Chip label="Draft" tone="repair" />
                 ) : (
                   <View style={{ alignItems: 'flex-end', gap: 4 }}>
-                    {row.overall_rating ? <Stars value={row.overall_rating} size={12} readonly /> : null}
+                    {row.overall_score ? (
+                      <AppText variant="caption" color="secondary">{`${row.overall_score}/10`}</AppText>
+                    ) : null}
                     {row.recommendation ? (
                       <Chip
                         label={RECOMMENDATION_LABEL[row.recommendation]}

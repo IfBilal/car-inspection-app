@@ -7,15 +7,15 @@ import { Input } from '@/components/ui/Input';
 import { ResultSegment } from './ResultSegment';
 import { useWizardStore } from '@/store/wizard';
 import { getAutosaveEngine } from '@/lib/autosave';
-import type { ChecklistItem, ItemResult } from '@/lib/types';
+import type { ChecklistItem, ItemResult, SectionKind } from '@/lib/types';
 
-type Props = { item: ChecklistItem; inspectionId: string };
+type Props = { item: ChecklistItem; kind: SectionKind; inspectionId: string };
 
 /**
  * One checklist row. Subscribes only to its own result slice so a tap
- * re-renders exactly this row (219 rows must stay at 60fps).
+ * re-renders exactly this row.
  */
-export const ItemRow = memo(function ItemRow({ item, inspectionId }: Props) {
+export const ItemRow = memo(function ItemRow({ item, kind, inspectionId }: Props) {
   const { colors } = useTheme();
   const entry = useWizardStore((s) => s.results[item.id]);
   const setResult = useWizardStore((s) => s.setResult);
@@ -50,6 +50,7 @@ export const ItemRow = memo(function ItemRow({ item, inspectionId }: Props) {
     [item.id, inspectionId, setNote],
   );
 
+  // Notes open for anything that isn't a clean pass/OK/No.
   const needsNote = entry?.result === 'fail' || entry?.result === 'repair';
 
   return (
@@ -58,19 +59,21 @@ export const ItemRow = memo(function ItemRow({ item, inspectionId }: Props) {
     <View style={[styles.row, { borderBottomColor: colors.divider }]}>
       <View style={styles.top}>
         <View style={styles.labelCol}>
-          <AppText variant="micro" color="tertiary">
-            {item.item_number}
-          </AppText>
           <AppText variant="bodyStrong" numberOfLines={2}>
             {item.label}
           </AppText>
+          {item.description ? (
+            <AppText variant="caption" color="tertiary" numberOfLines={3}>
+              {item.description}
+            </AppText>
+          ) : null}
         </View>
-        <ResultSegment value={entry?.result ?? null} onChange={onChange} />
+        <ResultSegment kind={kind} value={entry?.result ?? null} onChange={onChange} />
       </View>
       {needsNote ? (
         <Animated.View entering={FadeIn.duration(160)}>
           <Input
-            placeholder="What’s wrong?"
+            placeholder="Notes / comments"
             defaultValue={entry?.note ?? ''}
             onChangeText={onNote}
             style={{ paddingVertical: 8 }}
@@ -82,7 +85,7 @@ export const ItemRow = memo(function ItemRow({ item, inspectionId }: Props) {
 });
 
 const styles = StyleSheet.create({
-  row: { paddingVertical: 12, gap: 10, borderBottomWidth: 1 },
+  row: { paddingVertical: 14, gap: 10, borderBottomWidth: 1 },
   top: { gap: 10 },
-  labelCol: { gap: 2 },
+  labelCol: { gap: 3 },
 });

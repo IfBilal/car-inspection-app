@@ -21,6 +21,7 @@ export const vehicleSchema = z
       .optional()
       .refine((v) => !v || (/^\d{4}$/.test(v) && Number(v) >= 1900 && Number(v) <= 2100), 'Check the year'),
     colour: z.string().trim().optional().or(z.literal('')),
+    trim: z.string().trim().optional().or(z.literal('')),
     engine_size: z.string().trim().optional().or(z.literal('')),
     transmission: z.string().optional().or(z.literal('')),
     fuel_type: z.string().optional().or(z.literal('')),

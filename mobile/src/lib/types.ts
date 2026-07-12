@@ -3,7 +3,7 @@
 
 export type InspectionStatus = 'draft' | 'completed';
 export type ItemResult = 'pass' | 'fail' | 'na' | 'repair';
-export type Recommendation = 'recommended' | 'recommended_with_repairs' | 'not_recommended';
+export type Recommendation = 'buy' | 'negotiate' | 'walk_away';
 
 export type Profile = {
   id: string;
@@ -32,6 +32,7 @@ export type Vehicle = {
   model: string;
   year: number | null;
   colour: string | null;
+  trim: string | null;
   engine_size: string | null;
   transmission: string | null;
   fuel_type: string | null;
@@ -40,11 +41,15 @@ export type Vehicle = {
   created_at: string;
 };
 
+export type SectionKind = 'status' | 'passfail' | 'flags';
+
 export type ChecklistSection = {
   id: number;
   title: string;
   emoji_icon: string;
   sort_order: number;
+  /** drives rating labels: status=OK/Needs Attention/Critical, passfail=Pass/Fail/N-A, flags=Yes/No */
+  kind: SectionKind;
 };
 
 export type ChecklistItem = {
@@ -52,6 +57,7 @@ export type ChecklistItem = {
   section_id: number;
   item_number: number;
   label: string;
+  description: string | null;
   sort_order: number;
 };
 
@@ -64,9 +70,13 @@ export type Inspection = {
   odometer_km: number | null;
   seller: string | null;
   purchase_price: number | null;
-  overall_rating: number | null;
+  overall_score: number | null;
   recommendation: Recommendation | null;
   inspector_notes: string | null;
+  estimated_repair_cost: number | null;
+  obd_ready: boolean | null;
+  obd_codes: string | null;
+  obd_notes: string | null;
   signature_path: string | null;
   pdf_path: string | null;
   email_sent_at: string | null;

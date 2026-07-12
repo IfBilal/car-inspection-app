@@ -4,21 +4,38 @@ import * as Haptics from 'expo-haptics';
 import { useTheme } from '@/theme/ThemeProvider';
 import { AppText } from '@/components/ui/AppText';
 import { ScalePressable } from '@/components/ui/Pressable';
-import type { ItemResult } from '@/lib/types';
+import type { ItemResult, SectionKind } from '@/lib/types';
 
-const OPTIONS: { value: ItemResult; letter: string }[] = [
-  { value: 'pass', letter: 'P' },
-  { value: 'fail', letter: 'F' },
-  { value: 'na', letter: 'NA' },
-  { value: 'repair', letter: 'R' },
-];
+/**
+ * Rating options per section kind (mirrors report.pdf):
+ *  status:   OK (pass) / Needs Attention (repair) / Critical (fail)
+ *  passfail: Pass (pass) / Fail (fail) / N/A (na)
+ *  flags:    Yes (fail — a red flag present) / No (pass)
+ */
+const OPTIONS: Record<SectionKind, { value: ItemResult; label: string }[]> = {
+  status: [
+    { value: 'pass', label: 'OK' },
+    { value: 'repair', label: 'Attention' },
+    { value: 'fail', label: 'Critical' },
+  ],
+  passfail: [
+    { value: 'pass', label: 'Pass' },
+    { value: 'fail', label: 'Fail' },
+    { value: 'na', label: 'N/A' },
+  ],
+  flags: [
+    { value: 'fail', label: 'Yes' },
+    { value: 'pass', label: 'No' },
+  ],
+};
 
 type Props = {
+  kind: SectionKind;
   value: ItemResult | null;
   onChange: (v: ItemResult) => void;
 };
 
-export const ResultSegment = memo(function ResultSegment({ value, onChange }: Props) {
+export const ResultSegment = memo(function ResultSegment({ kind, value, onChange }: Props) {
   const { colors } = useTheme();
   const colorFor: Record<ItemResult, string> = {
     pass: colors.pass,
@@ -28,7 +45,7 @@ export const ResultSegment = memo(function ResultSegment({ value, onChange }: Pr
   };
   return (
     <View style={styles.row}>
-      {OPTIONS.map((opt) => {
+      {OPTIONS[kind].map((opt) => {
         const selected = value === opt.value;
         const color = colorFor[opt.value];
         return (
@@ -48,9 +65,9 @@ export const ResultSegment = memo(function ResultSegment({ value, onChange }: Pr
           >
             <AppText
               variant="caption"
-              style={{ color: selected ? '#FFFFFF' : colors.textSecondary, fontFamily: 'Inter_700Bold' }}
+              style={{ color: selected ? '#FFFFFF' : colors.textSecondary, fontFamily: 'Inter_600SemiBold' }}
             >
-              {opt.letter}
+              {opt.label}
             </AppText>
           </ScalePressable>
         );
@@ -60,14 +77,14 @@ export const ResultSegment = memo(function ResultSegment({ value, onChange }: Pr
 });
 
 const styles = StyleSheet.create({
-  row: { flexDirection: 'row', gap: 8 },
+  row: { flexDirection: 'row', gap: 8, flexWrap: 'wrap' },
   segment: {
     minWidth: 44,
-    height: 44,
-    borderRadius: 22,
+    height: 40,
+    borderRadius: 20,
     borderWidth: 1.5,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 10,
+    paddingHorizontal: 14,
   },
 });
