@@ -78,7 +78,7 @@ export default function ChecklistStep() {
 
   const onContinue = () => {
     getAutosaveEngine(id!).enqueue({ kind: 'inspection', fields: { current_step: 4 } });
-    router.push(`/(app)/inspection/${id}/photos`);
+    router.push(`/(app)/inspection/${id}/damage`);
   };
 
   if (checklist.isPending) {
@@ -102,7 +102,7 @@ export default function ChecklistStep() {
       padded={false}
       footer={
         <Button
-          label="Continue to photos"
+          label="Continue to damage diagram"
           onPress={onContinue}
         />
       }

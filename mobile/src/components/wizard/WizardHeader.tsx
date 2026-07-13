@@ -9,7 +9,7 @@ import { useToast } from '@/components/ui/Toast';
 import { getAutosaveEngine, type AutosaveStatus } from '@/lib/autosave';
 import { useDiscardDraft } from '@/lib/mutations';
 
-export const WIZARD_STEPS = ['client', 'vehicle', 'checklist', 'photos', 'summary'] as const;
+export const WIZARD_STEPS = ['client', 'vehicle', 'checklist', 'damage', 'photos', 'summary'] as const;
 export type WizardStepName = (typeof WIZARD_STEPS)[number];
 
 type Props = {

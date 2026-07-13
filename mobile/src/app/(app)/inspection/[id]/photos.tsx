@@ -112,7 +112,7 @@ export default function PhotosStep() {
   };
 
   const onContinue = () => {
-    getAutosaveEngine(id!).enqueue({ kind: 'inspection', fields: { current_step: 5 } });
+    getAutosaveEngine(id!).enqueue({ kind: 'inspection', fields: { current_step: 6 } });
     router.push(`/(app)/inspection/${id}/summary`);
   };
 

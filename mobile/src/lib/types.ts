@@ -4,6 +4,9 @@
 export type InspectionStatus = 'draft' | 'completed';
 export type ItemResult = 'pass' | 'fail' | 'na' | 'repair';
 export type Recommendation = 'buy' | 'negotiate' | 'walk_away';
+export type DamageMarkType = 'dent' | 'scratch' | 'rust';
+/** Normalized (0..1) position on the damage diagram image */
+export type DamageMark = { x: number; y: number; t: DamageMarkType };
 
 export type Profile = {
   id: string;
@@ -77,6 +80,7 @@ export type Inspection = {
   obd_ready: boolean | null;
   obd_codes: string | null;
   obd_notes: string | null;
+  damage_marks: DamageMark[] | null;
   signature_path: string | null;
   pdf_path: string | null;
   email_sent_at: string | null;

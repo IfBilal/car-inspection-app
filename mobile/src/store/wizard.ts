@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import type { InspectionFull } from '@/lib/queries';
-import type { ItemResult, Recommendation } from '@/lib/types';
+import type { DamageMark, ItemResult, Recommendation } from '@/lib/types';
 
 export type WizardResults = Record<number, { result: ItemResult; note?: string }>;
 
@@ -13,6 +13,7 @@ type WizardState = {
   /** identifier typed in search before "Register this vehicle" */
   prefillIdentifier: string | null;
   results: WizardResults;
+  damageMarks: DamageMark[];
   summary: {
     score: number;
     recommendation: Recommendation | null;
@@ -26,6 +27,7 @@ type WizardState = {
   setResult: (itemId: number, result: ItemResult) => void;
   setNote: (itemId: number, note: string) => void;
   setSummary: (patch: Partial<WizardState['summary']>) => void;
+  setDamageMarks: (marks: DamageMark[]) => void;
   reset: () => void;
 };
 
@@ -38,6 +40,7 @@ export const useWizardStore = create<WizardState>((set, get) => ({
   vehicleLocked: false,
   prefillIdentifier: null,
   results: {},
+  damageMarks: [],
   summary: { ...emptySummary },
 
   setPrefillIdentifier: (v) => set({ prefillIdentifier: v }),
@@ -52,6 +55,7 @@ export const useWizardStore = create<WizardState>((set, get) => ({
       clientId: full.client?.id ?? full.client_id,
       vehicleId: full.vehicle?.id ?? full.vehicle_id,
       results,
+      damageMarks: full.damage_marks ?? [],
       summary: {
         score: full.overall_score ?? 0,
         recommendation: full.recommendation,
@@ -73,6 +77,8 @@ export const useWizardStore = create<WizardState>((set, get) => ({
 
   setSummary: (patch) => set({ summary: { ...get().summary, ...patch } }),
 
+  setDamageMarks: (marks) => set({ damageMarks: marks }),
+
   reset: () =>
     set({
       inspectionId: null,
@@ -81,6 +87,7 @@ export const useWizardStore = create<WizardState>((set, get) => ({
       vehicleLocked: false,
       prefillIdentifier: null,
       results: {},
+      damageMarks: [],
       summary: { ...emptySummary },
     }),
 }));

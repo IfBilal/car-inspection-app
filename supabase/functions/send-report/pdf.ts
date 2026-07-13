@@ -2,9 +2,12 @@
 // "Premium Used Car Pre-Purchase Inspection Checklist") with pdf-lib.
 import { PDFDocument, PDFFont, PDFImage, PDFPage, StandardFonts, rgb, type RGB } from 'npm:pdf-lib@1.17.1';
 import { LOGO_B64 } from './logo.ts';
+import { DIAGRAM_B64 } from './diagram.ts';
 
 export type SectionKind = 'status' | 'passfail' | 'flags';
 export type ItemResult = 'pass' | 'fail' | 'na' | 'repair' | null;
+
+export type DamageMark = { x: number; y: number; t: 'dent' | 'scratch' | 'rust' };
 
 export type ReportData = {
   inspectionId: string;
@@ -33,6 +36,7 @@ export type ReportData = {
     items: { number: number; label: string; description: string | null; result: ItemResult; note: string | null }[];
   }[];
   obd: { ready: boolean | null; codes: string; notes: string };
+  damageMarks: DamageMark[];
   score: number; // 1..10
   estimatedRepairCost: string;
   recommendation: 'buy' | 'negotiate' | 'walk_away';
@@ -255,6 +259,48 @@ function statusSection(p: Painter, section: ReportData['sections'][0]) {
   p.gap(10);
 }
 
+const MARK_GLYPH = { dent: 'O', scratch: 'X', rust: '///' } as const;
+
+function damageDiagramBlock(p: Painter, data: ReportData, diagram: PDFImage | null) {
+  const imgW = W - 20;
+  const imgH = imgW * (826 / 2114);
+  const blockH = 16 + imgH + 26;
+  if (p.y - (blockH + 26) < M + 30) p.addPage();
+  p.sectionBar('Vehicle Damage Diagram');
+  p.cellBorder(M, p.y, W, blockH);
+  p.text('Mark damage using:   O = Dent      X = Scratch      /// = Rust', M + 10, p.y - 4, 8.5, {
+    bold: true,
+    color: NAVY_TEXT,
+  });
+  const imgX = M + 10;
+  const imgTop = p.y - 16;
+  if (diagram) {
+    p.page.drawImage(diagram, { x: imgX, y: imgTop - imgH, width: imgW, height: imgH });
+    // overlay the inspector's marks (normalized coords against the artwork)
+    for (const mark of data.damageMarks) {
+      const glyph = MARK_GLYPH[mark.t] ?? 'O';
+      const size = 11;
+      const gw = p.bold.widthOfTextAtSize(glyph, size);
+      p.page.drawText(glyph, {
+        x: imgX + mark.x * imgW - gw / 2,
+        y: imgTop - mark.y * imgH - size / 2 + 1,
+        size,
+        font: p.bold,
+        color: RED,
+      });
+    }
+  }
+  p.text(
+    'Please inspect all areas including front bumper, rear bumper, hood, roof, trunk, doors, fenders, quarter panels, rocker panels, and undercarriage.',
+    M + 10,
+    imgTop - imgH - 6,
+    6.8,
+    { bold: true, color: NAVY_TEXT },
+  );
+  p.y -= blockH;
+  p.gap(10);
+}
+
 function flagsSection(p: Painter, section: ReportData['sections'][0]) {
   const colW = 52;
   const colsX = [M + W * 0.52, M + W * 0.52 + colW];
@@ -442,6 +488,12 @@ export async function renderReport(data: ReportData): Promise<Uint8Array> {
   } catch {
     // logo failed to embed — header renders without it
   }
+  let diagram: PDFImage | null = null;
+  try {
+    diagram = await doc.embedPng(Uint8Array.from(atob(DIAGRAM_B64), (c) => c.charCodeAt(0)));
+  } catch {
+    // diagram failed to embed — section renders without the artwork
+  }
 
   const p = new Painter(doc, font, bold);
 
@@ -449,8 +501,11 @@ export async function renderReport(data: ReportData): Promise<Uint8Array> {
   vehicleDetailsBlock(p, data);
   for (const section of data.sections) {
     if (section.kind === 'passfail') passFailSection(p, section);
-    else if (section.kind === 'flags') flagsSection(p, section);
-    else statusSection(p, section);
+    else if (section.kind === 'flags') {
+      // sample order: damage diagram sits right before the red flags table
+      damageDiagramBlock(p, data, diagram);
+      flagsSection(p, section);
+    } else statusSection(p, section);
     // OBD block right after the diagnostic-scan section
     if (section.title.toLowerCase().includes('diagnostic')) obdBlock(p, data);
   }

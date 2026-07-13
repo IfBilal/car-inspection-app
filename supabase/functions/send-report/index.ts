@@ -122,6 +122,7 @@ Deno.serve(async (req) => {
             note: resultByItem.get(i.id)?.note ?? null,
           })),
       })),
+      damageMarks: Array.isArray(insp.damage_marks) ? insp.damage_marks : [],
       obd: {
         ready: insp.obd_ready,
         codes: insp.obd_codes ?? '',
