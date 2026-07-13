@@ -259,7 +259,8 @@ function statusSection(p: Painter, section: ReportData['sections'][0]) {
   p.gap(10);
 }
 
-const MARK_GLYPH = { dent: 'O', scratch: 'X', rust: '///' } as const;
+// Client-specified legend: X = Dent, /// = Scratch, O = Rust
+const MARK_GLYPH = { dent: 'X', scratch: '///', rust: 'O' } as const;
 
 function damageDiagramBlock(p: Painter, data: ReportData, diagram: PDFImage | null) {
   const imgW = W - 20;
@@ -268,7 +269,7 @@ function damageDiagramBlock(p: Painter, data: ReportData, diagram: PDFImage | nu
   if (p.y - (blockH + 26) < M + 30) p.addPage();
   p.sectionBar('Vehicle Damage Diagram');
   p.cellBorder(M, p.y, W, blockH);
-  p.text('Mark damage using:   O = Dent      X = Scratch      /// = Rust', M + 10, p.y - 4, 8.5, {
+  p.text('Mark damage using:   X = Dent      /// = Scratch      O = Rust', M + 10, p.y - 4, 8.5, {
     bold: true,
     color: NAVY_TEXT,
   });

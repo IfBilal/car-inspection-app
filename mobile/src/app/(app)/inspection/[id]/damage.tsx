@@ -17,13 +17,15 @@ import type { DamageMark, DamageMarkType } from '@/lib/types';
 const DIAGRAM = require('../../../../../assets/images/damage-diagram.png');
 const DIAGRAM_ASPECT = 2114 / 826;
 
+// Client-specified legend (differs from the sample document on purpose):
+// X = Dent, /// = Scratch, O = Rust
 const MARK_TYPES: { value: DamageMarkType; glyph: string; label: string }[] = [
-  { value: 'dent', glyph: 'O', label: 'Dent' },
-  { value: 'scratch', glyph: 'X', label: 'Scratch' },
-  { value: 'rust', glyph: '///', label: 'Rust' },
+  { value: 'dent', glyph: 'X', label: 'Dent' },
+  { value: 'scratch', glyph: '///', label: 'Scratch' },
+  { value: 'rust', glyph: 'O', label: 'Rust' },
 ];
 
-const GLYPH: Record<DamageMarkType, string> = { dent: 'O', scratch: 'X', rust: '///' };
+const GLYPH: Record<DamageMarkType, string> = { dent: 'X', scratch: '///', rust: 'O' };
 /** Tap within this normalized distance of an existing mark removes it. */
 const REMOVE_RADIUS = 0.035;
 
@@ -133,7 +135,7 @@ export default function DamageStep() {
       </Pressable>
 
       <AppText variant="caption" color="tertiary" style={styles.legend}>
-        O = Dent   ·   X = Scratch   ·   /// = Rust
+        X = Dent   ·   /// = Scratch   ·   O = Rust
       </AppText>
       <AppText variant="caption" color="tertiary">
         Inspect all areas including front bumper, rear bumper, hood, roof, trunk, doors, fenders,
