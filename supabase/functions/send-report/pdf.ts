@@ -62,7 +62,7 @@ const WHITE = rgb(1, 1, 1);
 const A4: [number, number] = [595.28, 841.89];
 const M = 40;
 const W = A4[0] - M * 2;
-const HEADER_H = 64;
+const HEADER_H = 76;
 
 const CONTACT_LINE =
   'Phone: +1 (555) 012-3456   ·   Email: reports@jselitemotorworks.com   ·   www.jselitemotorworks.com   ·   App: carinspect.pro';
@@ -166,7 +166,7 @@ class Painter {
 function vehicleDetailsBlock(p: Painter, d: ReportData) {
   p.sectionBar('Vehicle Details');
   const rows: [string, string, string, string][] = [
-    ['Inspection ID:', d.inspectionId, 'Date:', d.date],
+    ['Rego:', d.vehicle.plate, 'Date:', d.date],
     ['Inspector Name:', d.inspectorName, 'Buyer Name:', d.buyerName],
     ['Seller Name:', d.sellerName, 'Year:', d.vehicle.year],
     ['Make:', d.vehicle.make, 'Model:', d.vehicle.model],
@@ -427,40 +427,34 @@ function recommendationBlock(p: Painter, d: ReportData) {
 }
 
 async function signaturesBlock(p: Painter, d: ReportData, doc: PDFDocument) {
-  p.ensure(96);
-  p.sectionBar('Signatures');
-  const half = W / 2 - 8;
-  const boxH = 74;
-  p.cellBorder(M, p.y, half, boxH);
-  p.cellBorder(M + half + 16, p.y, half, boxH);
-  // Inspector
-  p.text('Inspector Signature:', M + 6, p.y - 5, 8, { bold: true });
+  p.ensure(140);
+  p.sectionBar('Signature');
+  const boxH = 118;
+  p.cellBorder(M, p.y, W, boxH);
+  p.text('Buyer Signature:', M + 8, p.y - 6, 9, { bold: true });
   if (d.signature) {
     try {
       const sig = await doc.embedPng(d.signature);
-      const scale = Math.min((half - 60) / sig.width, 30 / sig.height);
+      const scale = Math.min((W - 240) / sig.width, 52 / sig.height);
       p.page.drawImage(sig, {
-        x: M + 10,
-        y: p.y - 52,
+        x: M + 14,
+        y: p.y - 78,
         width: sig.width * scale,
         height: sig.height * scale,
       });
     } catch {
       // unreadable signature image — leave the line blank
     }
+  } else {
+    p.page.drawLine({
+      start: { x: M + 14, y: p.y - 70 },
+      end: { x: M + W / 2, y: p.y - 70 },
+      thickness: 0.7,
+      color: TEXT,
+    });
   }
-  p.text(`Print Name:  ${d.inspectorName}`, M + 6, p.y - 56, 8);
-  p.text(`Date:  ${d.date}`, M + 6, p.y - 67, 8);
-  // Buyer (signed physically — app captures inspector only for now)
-  p.text('Buyer Signature:', M + half + 22, p.y - 5, 8, { bold: true });
-  p.page.drawLine({
-    start: { x: M + half + 22, y: p.y - 45 },
-    end: { x: M + W - 10, y: p.y - 45 },
-    thickness: 0.7,
-    color: TEXT,
-  });
-  p.text(`Print Name:  ${d.buyerName}`, M + half + 22, p.y - 56, 8);
-  p.text('Date:', M + half + 22, p.y - 67, 8);
+  p.text(`Print Name:  ${d.buyerName}`, M + 8, p.y - 86, 9);
+  p.text(`Date:  ${d.date}`, M + 8, p.y - 103, 9);
   p.y -= boxH;
   p.gap(10);
 }
@@ -473,8 +467,8 @@ function disclaimerBlock(p: Painter) {
   const lines = p.wrap(disclaimer, 7, W - 12);
   const h = lines.length * 9 + 10;
   p.ensure(h);
-  p.cellBorder(M, p.y, W, h);
-  lines.forEach((l, i) => p.text(l, M + 6, p.y - 5 - i * 9, 7, { color: SOFT }));
+  p.page.drawRectangle({ x: M, y: p.y - h, width: W, height: h, borderColor: RED, borderWidth: 0.8 });
+  lines.forEach((l, i) => p.text(l, M + 6, p.y - 5 - i * 9, 7, { color: RED }));
   p.y -= h;
 }
 
@@ -542,23 +536,23 @@ export async function renderReport(data: ReportData): Promise<Uint8Array> {
   p.pages.forEach((page, i) => {
     const topY = A4[1] - 14;
     if (logo) {
-      const scale = Math.min(46 / logo.width, 46 / logo.height);
+      const scale = Math.min(62 / logo.width, 62 / logo.height);
       page.drawImage(logo, {
         x: M,
-        y: topY - 46,
+        y: topY - 62,
         width: logo.width * scale,
         height: logo.height * scale,
       });
     }
-    const title = 'PREMIUM USED CAR PRE-PURCHASE INSPECTION CHECKLIST';
-    const titleSize = 12.5;
+    const title = 'VEHICLE PRE - PURCHASE INSPECTION CHECKLIST';
+    const titleSize = 14.5;
     const titleW = bold.widthOfTextAtSize(title, titleSize);
-    page.drawText(title, { x: (A4[0] - titleW) / 2, y: topY - 14, size: titleSize, font: bold, color: NAVY_TEXT });
+    page.drawText(title, { x: (A4[0] - titleW) / 2, y: topY - 17, size: titleSize, font: bold, color: NAVY_TEXT });
     const tagline = 'Professional Inspection. Informed Decision. Peace of Mind.';
-    const tagW = bold.widthOfTextAtSize(tagline, 6.5);
-    page.drawText(tagline, { x: (A4[0] - tagW) / 2, y: topY - 25, size: 6.5, font: bold, color: SOFT });
-    const contactW = font.widthOfTextAtSize(CONTACT_LINE, 6);
-    page.drawText(CONTACT_LINE, { x: (A4[0] - contactW) / 2, y: topY - 35, size: 6, font, color: SOFT });
+    const tagW = bold.widthOfTextAtSize(tagline, 7.5);
+    page.drawText(tagline, { x: (A4[0] - tagW) / 2, y: topY - 30, size: 7.5, font: bold, color: SOFT });
+    const contactW = font.widthOfTextAtSize(CONTACT_LINE, 6.8);
+    page.drawText(CONTACT_LINE, { x: (A4[0] - contactW) / 2, y: topY - 41, size: 6.8, font, color: SOFT });
     // page badge
     const badge = `PAGE ${i + 1} OF ${total}`;
     const badgeW = bold.widthOfTextAtSize(badge, 6.5) + 12;
@@ -566,7 +560,7 @@ export async function renderReport(data: ReportData): Promise<Uint8Array> {
     page.drawText(badge, { x: A4[0] - M - badgeW + 6, y: topY - 14.5, size: 6.5, font: bold, color: WHITE });
     // footer
     page.drawText(
-      `${data.companyName}  ·  Inspection ${data.inspectionId}  ·  generated ${data.date}`,
+      `${data.companyName}  ·  Rego ${data.vehicle.plate || '—'}  ·  generated ${data.date}`,
       { x: M, y: 18, size: 6.5, font, color: SOFT },
     );
   });
