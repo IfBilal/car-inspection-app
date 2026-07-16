@@ -65,7 +65,7 @@ const W = A4[0] - M * 2;
 const HEADER_H = 80;
 
 const CONTACT_LINE =
-  'Phone: +1 (555) 012-3456   ·   Email: reports@jselitemotorworks.com   ·   www.jselitemotorworks.com   ·   App: carinspect.pro';
+  '+1 (555) 012-3456   ·   reports@jselitemotorworks.com   ·   www.jselitemotorworks.com   ·   App: carinspect.pro';
 
 const STATUS_OPTS: { result: Exclude<ItemResult, null>; label: string; color: RGB }[] = [
   { result: 'pass', label: 'OK', color: GREEN },
@@ -551,13 +551,17 @@ export async function renderReport(data: ReportData): Promise<Uint8Array> {
     const tagline = 'Professional Inspection. Informed Decision. Peace of Mind.';
     const tagW = bold.widthOfTextAtSize(tagline, 7.5);
     page.drawText(tagline, { x: (A4[0] - tagW) / 2, y: topY - 30, size: 7.5, font: bold, color: SOFT });
-    // center in the space right of the logo so it never collides with it
+    // center in the space right of the logo; shrink to fit so it can never
+    // spill left under the logo however long the values get
     const contactLeft = M + 72;
-    const contactW = font.widthOfTextAtSize(CONTACT_LINE, 8.5);
+    const contactRegion = A4[0] - M - contactLeft;
+    let cSize = 8.5;
+    while (cSize > 6.5 && font.widthOfTextAtSize(CONTACT_LINE, cSize) > contactRegion) cSize -= 0.25;
+    const contactW = font.widthOfTextAtSize(CONTACT_LINE, cSize);
     page.drawText(CONTACT_LINE, {
-      x: contactLeft + (A4[0] - M - contactLeft - contactW) / 2,
+      x: Math.max(contactLeft, contactLeft + (contactRegion - contactW) / 2),
       y: topY - 44,
-      size: 8.5,
+      size: cSize,
       font,
       color: SOFT,
     });
