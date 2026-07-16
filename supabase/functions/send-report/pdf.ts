@@ -62,7 +62,7 @@ const WHITE = rgb(1, 1, 1);
 const A4: [number, number] = [595.28, 841.89];
 const M = 40;
 const W = A4[0] - M * 2;
-const HEADER_H = 76;
+const HEADER_H = 80;
 
 const CONTACT_LINE =
   'Phone: +1 (555) 012-3456   ·   Email: reports@jselitemotorworks.com   ·   www.jselitemotorworks.com   ·   App: carinspect.pro';
@@ -551,8 +551,16 @@ export async function renderReport(data: ReportData): Promise<Uint8Array> {
     const tagline = 'Professional Inspection. Informed Decision. Peace of Mind.';
     const tagW = bold.widthOfTextAtSize(tagline, 7.5);
     page.drawText(tagline, { x: (A4[0] - tagW) / 2, y: topY - 30, size: 7.5, font: bold, color: SOFT });
-    const contactW = font.widthOfTextAtSize(CONTACT_LINE, 6.8);
-    page.drawText(CONTACT_LINE, { x: (A4[0] - contactW) / 2, y: topY - 41, size: 6.8, font, color: SOFT });
+    // center in the space right of the logo so it never collides with it
+    const contactLeft = M + 72;
+    const contactW = font.widthOfTextAtSize(CONTACT_LINE, 8.5);
+    page.drawText(CONTACT_LINE, {
+      x: contactLeft + (A4[0] - M - contactLeft - contactW) / 2,
+      y: topY - 44,
+      size: 8.5,
+      font,
+      color: SOFT,
+    });
     // page badge
     const badge = `PAGE ${i + 1} OF ${total}`;
     const badgeW = bold.widthOfTextAtSize(badge, 6.5) + 12;
