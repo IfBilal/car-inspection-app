@@ -472,6 +472,21 @@ function disclaimerBlock(p: Painter) {
   p.y -= h;
 }
 
+function declarationBlock(p: Painter) {
+  const declaration =
+    'I certify that this inspection has been completed to the best of my ability based on the visible condition of the vehicle at the time of inspection. ' +
+    'This report is intended as a guide only and does not guarantee the future reliability or performance of the vehicle. ' +
+    'Components that cannot be visually inspected or tested without dismantling have not been assessed.';
+  const lines = p.wrap(declaration, 7.5, W - 12);
+  const h = lines.length * 9.5 + 14;
+  p.ensure(h + 10);
+  p.sectionBar('Declaration');
+  p.page.drawRectangle({ x: M, y: p.y - h, width: W, height: h, borderColor: NAVY, borderWidth: 0.8 });
+  lines.forEach((line, index) => p.text(line, M + 6, p.y - 6 - index * 9.5, 7.5, { color: TEXT }));
+  p.y -= h;
+  p.gap(10);
+}
+
 export async function renderReport(data: ReportData): Promise<Uint8Array> {
   const doc = await PDFDocument.create();
   const font = await doc.embedFont(StandardFonts.Helvetica);
@@ -507,6 +522,7 @@ export async function renderReport(data: ReportData): Promise<Uint8Array> {
   ratingBlock(p, data);
   recommendationBlock(p, data);
   await signaturesBlock(p, data, doc);
+  declarationBlock(p);
   disclaimerBlock(p);
 
   // ===== photos (appended after the report pages) =====

@@ -2,8 +2,11 @@
 -- "Premium Used Car Pre-Purchase Inspection Checklist") 1:1.
 -- section.kind: 'passfail' (Pass/Fail/N-A) | 'status' (OK/Needs Attention/Critical) | 'flags' (Yes/No)
 
-delete from checklist_items;
-delete from checklist_sections;
+-- Keep checklist expansions introduced by later migrations. This seed owns the
+-- original report template only; `0006_expanded_inspection_checklist.sql`
+-- supplies the detailed client additions.
+delete from checklist_items where section_id <= 8;
+delete from checklist_sections where id <= 8;
 
 insert into checklist_sections (id, title, emoji_icon, sort_order, kind) values
   (1, 'Vehicle History & Records Review',              'file-search', 1, 'passfail'),
@@ -13,7 +16,7 @@ insert into checklist_sections (id, title, emoji_icon, sort_order, kind) values
   (5, 'Undercarriage / Lift Inspection',               'wrench',      5, 'status'),
   (6, 'Interior & Electronics',                        'armchair',    6, 'status'),
   (7, 'Test Drive',                                    'gauge',       7, 'status'),
-  (8, 'Red Flags',                                     'alert',       8, 'flags')
+  (8, 'Red Flags',                                     'alert',       15, 'flags')
 on conflict (id) do update set
   title = excluded.title, kind = excluded.kind, sort_order = excluded.sort_order;
 

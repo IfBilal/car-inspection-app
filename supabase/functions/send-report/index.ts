@@ -65,14 +65,10 @@ Deno.serve(async (req) => {
   });
   const companyName = insp.inspector?.company_name || Deno.env.get('SMTP_FROM_NAME') || 'Vehicle Inspections';
 
-  // ---- PDF (reuse stored one on resend) ----
+  // ---- PDF ----
+  // Always rebuild so a re-send reflects the current report template.
   let pdfBytes: Uint8Array | null = null;
   let pdfPath: string = insp.pdf_path ?? `inspections/${inspectionId}/report.pdf`;
-
-  if (insp.pdf_path && body.resend) {
-    const { data: existing } = await supabase.storage.from('reports').download(insp.pdf_path);
-    if (existing) pdfBytes = new Uint8Array(await existing.arrayBuffer());
-  }
 
   if (!pdfBytes) {
     // photos + signature
