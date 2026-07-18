@@ -4,7 +4,7 @@
     "slug": "carinspect-pro",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/app-icon-js-elite.png",
     "scheme": "carinspect",
     "userInterfaceStyle": "automatic",
     "ios": {
@@ -14,9 +14,8 @@
     "android": {
       "package": "com.carinspect.pro",
       "adaptiveIcon": {
-        "backgroundColor": "#7F1D1D",
-        "foregroundImage": "./assets/images/android-icon-foreground.png",
-        "monochromeImage": "./assets/images/android-icon-monochrome.png"
+        "backgroundColor": "#000000",
+        "foregroundImage": "./assets/images/android-icon-js-elite.png"
       },
       "predictiveBackGestureEnabled": false
     },
