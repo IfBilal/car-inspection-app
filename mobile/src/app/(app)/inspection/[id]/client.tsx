@@ -9,6 +9,7 @@ import { AppText } from '@/components/ui/AppText';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
+import { AddressPicker } from '@/components/client/AddressPicker';
 import { ScalePressable } from '@/components/ui/Pressable';
 import { useToast } from '@/components/ui/Toast';
 import { WizardHeader } from '@/components/wizard/WizardHeader';
@@ -28,16 +29,23 @@ export default function ClientStep() {
   const saveClient = useSaveClient(id!);
   const [pickedClient, setPickedClient] = useState<Client | null>(null);
 
-  const { control, handleSubmit, reset, watch, formState } = useForm<ClientForm>({
+  const { control, handleSubmit, reset, setValue, watch, formState } = useForm<ClientForm>({
     resolver: zodResolver(clientSchema),
-    defaultValues: { full_name: '', email: '', phone: '', address: '' },
+    defaultValues: { full_name: '', email: '', phone: '', address: '', address_latitude: null, address_longitude: null },
   });
 
   // Prefill from an existing draft (resume) — only when the form is untouched.
   useEffect(() => {
     const c = full.data?.client;
     if (c && c.email !== 'pending@draft.local' && !formState.isDirty) {
-      reset({ full_name: c.full_name, email: c.email, phone: c.phone ?? '', address: c.address ?? '' });
+      reset({
+        full_name: c.full_name,
+        email: c.email,
+        phone: c.phone ?? '',
+        address: c.address ?? '',
+        address_latitude: c.address_latitude,
+        address_longitude: c.address_longitude,
+      });
     }
   }, [full.data?.client, formState.isDirty, reset]);
 
@@ -48,13 +56,20 @@ export default function ClientStep() {
 
   const pick = (c: Client) => {
     setPickedClient(c);
-    reset({ full_name: c.full_name, email: c.email, phone: c.phone ?? '', address: c.address ?? '' });
+    reset({
+      full_name: c.full_name,
+      email: c.email,
+      phone: c.phone ?? '',
+      address: c.address ?? '',
+      address_latitude: c.address_latitude,
+      address_longitude: c.address_longitude,
+    });
   };
 
   const onContinue = handleSubmit(async (form) => {
     try {
       if (pickedClient) {
-        await saveClient.mutateAsync({ existingClientId: pickedClient.id });
+        await saveClient.mutateAsync({ existingClientId: pickedClient.id, form });
       } else {
         await saveClient.mutateAsync({ clientId: full.data!.client_id, form });
       }
@@ -137,12 +152,20 @@ export default function ClientStep() {
           control={control}
           name="address"
           render={({ field }) => (
-            <Input
-              label="Address (optional)"
-              multiline
-              numberOfLines={2}
+            <AddressPicker
               value={field.value ?? ''}
+              latitude={watch('address_latitude') ?? null}
+              longitude={watch('address_longitude') ?? null}
               onChangeText={field.onChange}
+              onManualAddressChange={(address) => {
+                field.onChange(address);
+                setValue('address_latitude', null, { shouldDirty: true });
+                setValue('address_longitude', null, { shouldDirty: true });
+              }}
+              onLocationChange={({ latitude, longitude }) => {
+                setValue('address_latitude', latitude, { shouldDirty: true });
+                setValue('address_longitude', longitude, { shouldDirty: true });
+              }}
             />
           )}
         />

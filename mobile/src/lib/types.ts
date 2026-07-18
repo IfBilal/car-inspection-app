@@ -31,6 +31,8 @@ export type Client = {
   email: string;
   phone: string | null;
   address: string | null;
+  address_latitude: number | null;
+  address_longitude: number | null;
   created_by: string | null;
   created_at: string;
 };

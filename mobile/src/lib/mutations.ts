@@ -65,8 +65,20 @@ export function useDiscardDraft() {
 export function useSaveClient(inspectionId: string) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (input: { clientId: string; form: ClientForm } | { existingClientId: string }) => {
+    mutationFn: async (input: { clientId: string; form: ClientForm } | { existingClientId: string; form: ClientForm }) => {
       if ('existingClientId' in input) {
+        const { error: clientError } = await supabase
+          .from('clients')
+          .update({
+            full_name: input.form.full_name,
+            email: input.form.email.trim().toLowerCase(),
+            phone: input.form.phone || null,
+            address: input.form.address || null,
+            address_latitude: input.form.address_latitude ?? null,
+            address_longitude: input.form.address_longitude ?? null,
+          })
+          .eq('id', input.existingClientId);
+        if (clientError) throw clientError;
         const { error } = await supabase
           .from('inspections')
           .update({ client_id: input.existingClientId })
@@ -81,6 +93,8 @@ export function useSaveClient(inspectionId: string) {
           email: input.form.email.trim().toLowerCase(),
           phone: input.form.phone || null,
           address: input.form.address || null,
+          address_latitude: input.form.address_latitude ?? null,
+          address_longitude: input.form.address_longitude ?? null,
         })
         .eq('id', input.clientId);
       if (error) throw error;

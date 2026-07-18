@@ -5,6 +5,8 @@ export const clientSchema = z.object({
   email: z.string().trim().email('Enter a valid email — the report is sent here'),
   phone: z.string().trim().optional().or(z.literal('')),
   address: z.string().trim().optional().or(z.literal('')),
+  address_latitude: z.number().nullable().optional(),
+  address_longitude: z.number().nullable().optional(),
 });
 export type ClientForm = z.infer<typeof clientSchema>;
 
