@@ -26,6 +26,9 @@ export const vehicleSchema = z
     transmission: z.string().optional().or(z.literal('')),
     fuel_type: z.string().optional().or(z.literal('')),
     drive_type: z.string().optional().or(z.literal('')),
+    body_type: z.enum(['suv', 'truck', 'dual_cab_ute', 'hatchback', 'sedan', 'single_cab_ute', 'van', 'wagon'], {
+      message: 'Select a vehicle type',
+    }),
     odometer_km: z
       .string()
       .optional()

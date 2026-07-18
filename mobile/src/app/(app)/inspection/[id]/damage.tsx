@@ -12,10 +12,8 @@ import { useTheme } from '@/theme/ThemeProvider';
 import { getAutosaveEngine } from '@/lib/autosave';
 import { useWizardStore } from '@/store/wizard';
 import type { DamageMark, DamageMarkType } from '@/lib/types';
-
-// Diagram artwork extracted from the client's report.pdf (page 3)
-const DIAGRAM = require('../../../../../assets/images/damage-diagram.png');
-const DIAGRAM_ASPECT = 2114 / 826;
+import { getVehicleDiagram } from '@/lib/vehicle-diagrams';
+import { useInspectionFull } from '@/lib/queries';
 
 // Client-specified legend (differs from the sample document on purpose):
 // X = Dent, /// = Scratch, O = Rust
@@ -33,12 +31,16 @@ export default function DamageStep() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { colors } = useTheme();
   const { width } = useWindowDimensions();
+  const inspection = useInspectionFull(id);
   const marks = useWizardStore((s) => s.damageMarks);
   const setDamageMarks = useWizardStore((s) => s.setDamageMarks);
   const [tool, setTool] = useState<DamageMarkType>('dent');
 
-  const canvasW = width - 40;
-  const canvasH = canvasW / DIAGRAM_ASPECT;
+  const diagram = getVehicleDiagram(inspection.data?.vehicle?.body_type);
+  const maxCanvasW = width - 40;
+  const maxCanvasH = 430;
+  const canvasH = Math.min(maxCanvasW / diagram.aspect, maxCanvasH);
+  const canvasW = canvasH * diagram.aspect;
 
   const save = (next: DamageMark[]) => {
     setDamageMarks(next);
@@ -50,7 +52,7 @@ export default function DamageStep() {
     const y = evt.nativeEvent.locationY / canvasH;
     // remove an existing mark if tapped (distance normalized against width)
     const hit = marks.findIndex(
-      (m) => Math.hypot(m.x - x, (m.y - y) / DIAGRAM_ASPECT) < REMOVE_RADIUS,
+      (m) => Math.hypot(m.x - x, (m.y - y) / diagram.aspect) < REMOVE_RADIUS,
     );
     Haptics.selectionAsync();
     if (hit >= 0) {
@@ -80,7 +82,7 @@ export default function DamageStep() {
         }
       />
       <AppText variant="caption" color="secondary" style={styles.hint}>
-        Pick a damage type, then tap the car where the damage is. Tap a mark to remove it.
+        {diagram.label}: pick a damage type, then tap the vehicle where the damage is. Tap a mark to remove it.
       </AppText>
 
       {/* Tool selector */}
@@ -122,7 +124,7 @@ export default function DamageStep() {
 
       {/* Diagram canvas — always white like the paper form so the artwork reads */}
       <Pressable onPress={onTap} style={[styles.canvas, { width: canvasW, height: canvasH, borderColor: colors.border }]}>
-        <Image source={DIAGRAM} style={{ width: canvasW, height: canvasH }} resizeMode="contain" />
+        <Image source={diagram.source} style={{ width: canvasW, height: canvasH }} resizeMode="contain" />
         {marks.map((m, i) => (
           <View
             key={`${m.x}-${m.y}-${i}`}

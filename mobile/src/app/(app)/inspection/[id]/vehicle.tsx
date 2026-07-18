@@ -20,6 +20,7 @@ import { getAutosaveEngine } from '@/lib/autosave';
 import { vehicleSchema, type VehicleForm } from '@/lib/validation';
 import { useWizardStore } from '@/store/wizard';
 import type { Vehicle } from '@/lib/types';
+import { BODY_TYPE_OPTIONS, bodyTypeFromLabel } from '@/lib/vehicle-diagrams';
 
 export default function VehicleStep() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -56,6 +57,7 @@ export default function VehicleStep() {
       transmission: '',
       fuel_type: '',
       drive_type: '',
+      body_type: undefined,
       odometer_km: '',
       seller: '',
       purchase_price: '',
@@ -79,6 +81,7 @@ export default function VehicleStep() {
       transmission: v.transmission ?? '',
       fuel_type: v.fuel_type ?? '',
       drive_type: v.drive_type ?? '',
+      body_type: v.body_type ?? undefined,
       odometer_km: full.data?.odometer_km != null ? String(full.data.odometer_km) : '',
       seller: full.data?.seller ?? '',
       purchase_price: full.data?.purchase_price != null ? String(full.data.purchase_price) : '',
@@ -125,6 +128,7 @@ export default function VehicleStep() {
       transmission: dupeCandidate.transmission ?? '',
       fuel_type: dupeCandidate.fuel_type ?? '',
       drive_type: dupeCandidate.drive_type ?? '',
+      body_type: dupeCandidate.body_type ?? undefined,
       odometer_km: getValues('odometer_km'),
       seller: getValues('seller'),
       purchase_price: getValues('purchase_price'),
@@ -139,7 +143,7 @@ export default function VehicleStep() {
         purchase_price: form.purchase_price,
       };
       if (linkedVehicle) {
-        await saveVehicle.mutateAsync({ existingVehicleId: linkedVehicle.id, snapshot });
+        await saveVehicle.mutateAsync({ existingVehicleId: linkedVehicle.id, form, snapshot });
       } else {
         await saveVehicle.mutateAsync({ vehicleId: full.data!.vehicle_id, form, snapshot });
       }
@@ -362,6 +366,19 @@ export default function VehicleStep() {
               options={['FWD', 'RWD', 'AWD', '4WD']}
               value={field.value}
               onChange={field.onChange}
+            />
+          )}
+        />
+        <Controller
+          control={control}
+          name="body_type"
+          render={({ field, fieldState }) => (
+            <ChipSelector
+              label="Vehicle type"
+              options={[...BODY_TYPE_OPTIONS]}
+              value={field.value ? BODY_TYPE_OPTIONS.find((option) => bodyTypeFromLabel(option) === field.value) : undefined}
+              onChange={(value) => field.onChange(bodyTypeFromLabel(value))}
+              error={fieldState.error?.message}
             />
           )}
         />

@@ -8,10 +8,11 @@ type Props = {
   options: string[];
   value: string | undefined | null;
   onChange: (v: string) => void;
+  error?: string;
 };
 
 /** Horizontal chip group used instead of dropdowns (transmission, fuel…). */
-export function ChipSelector({ label, options, value, onChange }: Props) {
+export function ChipSelector({ label, options, value, onChange, error }: Props) {
   const { colors, radii } = useTheme();
   return (
     <View style={styles.wrap}>
@@ -41,6 +42,7 @@ export function ChipSelector({ label, options, value, onChange }: Props) {
           );
         })}
       </View>
+      {error ? <AppText variant="caption" style={{ color: colors.fail }}>{error}</AppText> : null}
     </View>
   );
 }

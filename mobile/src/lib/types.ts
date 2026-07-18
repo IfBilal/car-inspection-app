@@ -5,6 +5,15 @@ export type InspectionStatus = 'draft' | 'completed';
 export type ItemResult = 'pass' | 'fail' | 'na' | 'repair';
 export type Recommendation = 'buy' | 'negotiate' | 'walk_away';
 export type DamageMarkType = 'dent' | 'scratch' | 'rust';
+export type VehicleBodyType =
+  | 'suv'
+  | 'truck'
+  | 'dual_cab_ute'
+  | 'hatchback'
+  | 'sedan'
+  | 'single_cab_ute'
+  | 'van'
+  | 'wagon';
 /** Normalized (0..1) position on the damage diagram image */
 export type DamageMark = { x: number; y: number; t: DamageMarkType };
 
@@ -40,6 +49,7 @@ export type Vehicle = {
   transmission: string | null;
   fuel_type: string | null;
   drive_type: string | null;
+  body_type: VehicleBodyType | null;
   created_by: string | null;
   created_at: string;
 };

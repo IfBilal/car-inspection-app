@@ -104,6 +104,7 @@ Deno.serve(async (req) => {
         exteriorColor: v.colour ?? '',
         fuelType: v.fuel_type ?? '',
         askingPrice: insp.purchase_price != null ? String(insp.purchase_price) : '',
+        bodyType: v.body_type ?? null,
       },
       sections: (sections ?? []).map((s) => ({
         title: s.title,

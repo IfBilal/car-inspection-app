@@ -106,6 +106,7 @@ function vehicleRowFromForm(form: VehicleForm) {
     transmission: form.transmission || null,
     fuel_type: form.fuel_type || null,
     drive_type: form.drive_type || null,
+    body_type: form.body_type,
   };
 }
 
@@ -132,7 +133,7 @@ export function useSaveVehicle(inspectionId: string) {
     mutationFn: async (
       input:
         | { vehicleId: string; form: VehicleForm; snapshot: { odometer_km?: string; seller?: string; purchase_price?: string } }
-        | { existingVehicleId: string; snapshot: { odometer_km?: string; seller?: string; purchase_price?: string } },
+        | { existingVehicleId: string; form: VehicleForm; snapshot: { odometer_km?: string; seller?: string; purchase_price?: string } },
     ) => {
       const snapshotRow = {
         odometer_km: input.snapshot.odometer_km ? Number(input.snapshot.odometer_km) : null,
@@ -140,6 +141,11 @@ export function useSaveVehicle(inspectionId: string) {
         purchase_price: input.snapshot.purchase_price ? Number(input.snapshot.purchase_price) : null,
       };
       if ('existingVehicleId' in input) {
+        const { error: vehicleError } = await supabase
+          .from('vehicles')
+          .update({ body_type: input.form.body_type })
+          .eq('id', input.existingVehicleId);
+        if (vehicleError) throw vehicleError;
         const { error } = await supabase
           .from('inspections')
           .update({ vehicle_id: input.existingVehicleId, ...snapshotRow })

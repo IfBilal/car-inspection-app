@@ -3,6 +3,7 @@
 import { PDFDocument, PDFFont, PDFImage, PDFPage, StandardFonts, rgb, type RGB } from 'npm:pdf-lib@1.17.1';
 import { LOGO_B64 } from './logo.ts';
 import { DIAGRAM_B64 } from './diagram.ts';
+import { VEHICLE_DIAGRAMS_B64 } from './vehicle-diagrams.ts';
 
 export type SectionKind = 'status' | 'passfail' | 'flags';
 export type ItemResult = 'pass' | 'fail' | 'na' | 'repair' | null;
@@ -29,6 +30,7 @@ export type ReportData = {
     exteriorColor: string;
     fuelType: string;
     askingPrice: string;
+    bodyType: string | null;
   };
   sections: {
     title: string;
@@ -264,10 +266,10 @@ const MARK_GLYPH = { dent: 'X', scratch: '///', rust: 'O' } as const;
 
 function damageDiagramBlock(p: Painter, data: ReportData, diagram: PDFImage | null) {
   const imgW = W - 20;
-  const imgH = imgW * (826 / 2114);
+  const imgH = imgW * (diagram ? diagram.height / diagram.width : 826 / 2114);
   const blockH = 16 + imgH + 26;
   if (p.y - (blockH + 26) < M + 30) p.addPage();
-  p.sectionBar('Vehicle Damage Diagram');
+  p.sectionBar(data.vehicle.bodyType ? `${data.vehicle.bodyType.replaceAll('_', ' ')} Damage Diagram` : 'Passenger Car Damage Diagram');
   p.cellBorder(M, p.y, W, blockH);
   p.text('Mark damage using:   X = Dent      /// = Scratch      O = Rust', M + 10, p.y - 4, 8.5, {
     bold: true,
@@ -500,7 +502,10 @@ export async function renderReport(data: ReportData): Promise<Uint8Array> {
   }
   let diagram: PDFImage | null = null;
   try {
-    diagram = await doc.embedPng(Uint8Array.from(atob(DIAGRAM_B64), (c) => c.charCodeAt(0)));
+    const bodyDiagram = data.vehicle.bodyType ? VEHICLE_DIAGRAMS_B64[data.vehicle.bodyType] : undefined;
+    diagram = bodyDiagram
+      ? await doc.embedJpg(Uint8Array.from(atob(bodyDiagram), (c) => c.charCodeAt(0)))
+      : await doc.embedPng(Uint8Array.from(atob(DIAGRAM_B64), (c) => c.charCodeAt(0)));
   } catch {
     // diagram failed to embed — section renders without the artwork
   }
