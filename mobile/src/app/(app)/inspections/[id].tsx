@@ -4,7 +4,7 @@ import { Redirect, router, useLocalSearchParams } from 'expo-router';
 import { Image } from 'expo-image';
 import { File, Paths } from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
-import { ArrowLeft, ChevronDown, ChevronUp, Mail, Share2 } from 'lucide-react-native';
+import { ArrowLeft, ChevronDown, ChevronUp, Mail, Share2, Trash2 } from 'lucide-react-native';
 import { Screen } from '@/components/ui/Screen';
 import { AppText } from '@/components/ui/AppText';
 import { Button } from '@/components/ui/Button';
@@ -17,7 +17,7 @@ import { PlateBadge } from '@/components/vehicle/PlateBadge';
 import { vehicleTitle } from '@/components/vehicle/VehicleCard';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useChecklist, useInspectionFull } from '@/lib/queries';
-import { useSendReport } from '@/lib/mutations';
+import { useDeleteInspection, useSendReport } from '@/lib/mutations';
 import { signedPhotoUrl } from '@/lib/photos';
 import { formatDate, RECOMMENDATION_LABEL, RECOMMENDATION_TONE, scoreBand } from '@/lib/format';
 import type { ItemResult } from '@/lib/types';
@@ -31,6 +31,7 @@ export default function InspectionDetail() {
   const full = useInspectionFull(id);
   const checklist = useChecklist();
   const sendReport = useSendReport();
+  const deleteInspection = useDeleteInspection();
   const { width } = useWindowDimensions();
   const [openSections, setOpenSections] = useState<Set<number>>(new Set());
   const [photoUrls, setPhotoUrls] = useState<Record<string, string>>({});
@@ -102,6 +103,40 @@ export default function InspectionDetail() {
     } finally {
       setSharing(false);
     }
+  };
+
+  const confirmDelete = () => {
+    const inspection = full.data;
+    if (!inspection) return;
+
+    Alert.alert(
+      'Delete inspection?',
+      'This permanently removes the completed inspection and its report. This action cannot be undone.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: () =>
+            deleteInspection.mutate(
+              {
+                inspectionId: inspection.id,
+                vehicleId: inspection.vehicle?.id,
+                photoPaths: inspection.photos.map((photo) => photo.storage_path),
+                signaturePath: inspection.signature_path,
+                pdfPath: inspection.pdf_path,
+              },
+              {
+                onSuccess: () => {
+                  router.replace('/(app)/home');
+                  toast.show('success', 'Inspection deleted');
+                },
+                onError: () => toast.show('error', 'Couldn’t delete the inspection'),
+              },
+            ),
+        },
+      ],
+    );
   };
 
   const toggleSection = (sid: number) => {
@@ -283,6 +318,16 @@ export default function InspectionDetail() {
               </Card>
             </>
           ) : null}
+
+          <View style={styles.deleteAction}>
+            <Button
+              variant="destructive"
+              icon={Trash2}
+              label="Delete inspection"
+              onPress={confirmDelete}
+              loading={deleteInspection.isPending}
+            />
+          </View>
         </>
       ) : null}
     </Screen>
@@ -300,4 +345,5 @@ const styles = StyleSheet.create({
   resultRow: { flexDirection: 'row', gap: 10, paddingHorizontal: 16, paddingVertical: 10, borderTopWidth: 1 },
   itemNo: { width: 28 },
   photoGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  deleteAction: { marginTop: 32, marginBottom: 8 },
 });

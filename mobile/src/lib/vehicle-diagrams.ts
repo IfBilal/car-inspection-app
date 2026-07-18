@@ -1,14 +1,14 @@
 import type { ImageSourcePropType } from 'react-native';
 
 export const BODY_TYPE_OPTIONS = [
-  'SUV',
-  'Truck',
-  'Dual cab ute',
-  'Hatchback',
   'Sedan',
-  'Single cab ute',
+  'Single cab Ute',
+  'Double Cab Ute',
+  'SUV',
+  'Hatchback',
   'Van',
   'Wagon',
+  'Truck',
 ] as const;
 
 export type VehicleBodyType =
@@ -26,10 +26,10 @@ type Diagram = { source: ImageSourcePropType; aspect: number; label: string };
 const diagrams: Record<VehicleBodyType, Diagram> = {
   suv: { source: require('../../assets/images/SUV.jpeg'), aspect: 1346 / 1169, label: 'SUV' },
   truck: { source: require('../../assets/images/Truck.jpeg'), aspect: 1383 / 1137, label: 'Truck' },
-  dual_cab_ute: { source: require('../../assets/images/dual_cab_ute.jpeg'), aspect: 1179 / 1088, label: 'Dual cab ute' },
+  dual_cab_ute: { source: require('../../assets/images/dual_cab_ute.jpeg'), aspect: 1179 / 1088, label: 'Double Cab Ute' },
   hatchback: { source: require('../../assets/images/hatchback.jpeg'), aspect: 1179 / 1262, label: 'Hatchback' },
   sedan: { source: require('../../assets/images/sedan.jpeg'), aspect: 1179 / 1056, label: 'Sedan' },
-  single_cab_ute: { source: require('../../assets/images/single_cab_ute.jpeg'), aspect: 1306 / 1205, label: 'Single cab ute' },
+  single_cab_ute: { source: require('../../assets/images/single_cab_ute.jpeg'), aspect: 1306 / 1205, label: 'Single cab Ute' },
   van: { source: require('../../assets/images/van.jpeg'), aspect: 1343 / 1171, label: 'Van' },
   wagon: { source: require('../../assets/images/wagon.jpeg'), aspect: 1179 / 1042, label: 'Wagon' },
 };
@@ -41,6 +41,8 @@ const legacyDiagram: Diagram = {
 };
 
 export function bodyTypeFromLabel(label: string): VehicleBodyType {
+  if (label === 'Double Cab Ute') return 'dual_cab_ute';
+
   return label.toLowerCase().replaceAll(' ', '_') as VehicleBodyType;
 }
 

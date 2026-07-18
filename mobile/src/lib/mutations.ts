@@ -61,6 +61,49 @@ export function useDiscardDraft() {
   });
 }
 
+export function useDeleteInspection() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (args: {
+      inspectionId: string;
+      vehicleId?: string;
+      photoPaths: string[];
+      signaturePath?: string | null;
+      pdfPath?: string | null;
+    }) => {
+      const { data, error } = await supabase
+        .from('inspections')
+        .delete()
+        .eq('id', args.inspectionId)
+        .eq('status', 'completed')
+        .select('id')
+        .single();
+      if (error) throw error;
+      if (!data) throw new Error('Inspection not found');
+
+      // The inspection is already removed at this point, so storage cleanup is
+      // best-effort and must not make a successful deletion appear to have failed.
+      const cleanup: PromiseLike<unknown>[] = [];
+      if (args.photoPaths.length > 0) {
+        cleanup.push(supabase.storage.from('inspection-photos').remove(args.photoPaths));
+      }
+      if (args.signaturePath) {
+        cleanup.push(supabase.storage.from('signatures').remove([args.signaturePath]));
+      }
+      if (args.pdfPath) {
+        cleanup.push(supabase.storage.from('reports').remove([args.pdfPath]));
+      }
+      await Promise.allSettled(cleanup);
+    },
+    onSuccess: (_data, args) => {
+      qc.removeQueries({ queryKey: ['inspection', args.inspectionId] });
+      qc.invalidateQueries({ queryKey: ['recentInspections'] });
+      qc.invalidateQueries({ queryKey: ['vehicleHistory'] });
+      if (args.vehicleId) qc.invalidateQueries({ queryKey: ['vehicle', args.vehicleId] });
+    },
+  });
+}
+
 /** Update the draft's client row (or relink to an existing client). */
 export function useSaveClient(inspectionId: string) {
   const qc = useQueryClient();
