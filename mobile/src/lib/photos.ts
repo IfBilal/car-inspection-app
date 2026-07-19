@@ -3,7 +3,7 @@ import * as ImageManipulator from 'expo-image-manipulator';
 import { randomUUID } from 'expo-crypto';
 import { supabase } from './supabase';
 
-export const MAX_PHOTOS = 12;
+export const MAX_PHOTOS = 30;
 
 /** Resize to ≤1600px @ 0.8 JPEG, upload, insert the DB row. */
 export async function uploadInspectionPhoto(
