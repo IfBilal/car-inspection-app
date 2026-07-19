@@ -165,13 +165,13 @@ class Painter {
 function vehicleDetailsBlock(p: Painter, d: ReportData) {
   p.sectionBar('Vehicle Details');
   const rows: [string, string, string, string][] = [
-    ['Rego:', d.vehicle.plate, 'Date:', d.date],
     ['Inspector Name:', d.inspectorName, 'Buyer Name:', d.buyerName],
-    ['Year:', d.vehicle.year, 'Make:', d.vehicle.make],
-    ['Model:', d.vehicle.model, 'Trim / Model Variant:', d.vehicle.trim],
-    ['VIN:', d.vehicle.vin, 'Odometer Reading:', d.vehicle.odometer],
-    ['Transmission:', d.vehicle.transmission, 'Drivetrain:', d.vehicle.drivetrain],
-    ['Exterior Color:', d.vehicle.exteriorColor, 'Fuel Type:', d.vehicle.fuelType],
+    ['Make:', d.vehicle.make, 'Model:', d.vehicle.model],
+    ['Rego:', d.vehicle.plate, 'Year:', d.vehicle.year],
+    ['Trim / Model Variant:', d.vehicle.trim, 'VIN:', d.vehicle.vin],
+    ['Odometer:', d.vehicle.odometer, 'Transmission:', d.vehicle.transmission],
+    ['Drivetrain:', d.vehicle.drivetrain, 'Color:', d.vehicle.exteriorColor],
+    ['Fuel Type:', d.vehicle.fuelType, 'Date:', d.date],
   ];
   const rowH = 18;
   const half = W / 2;
