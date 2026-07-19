@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Image, StyleSheet, View } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
-import { CheckCircle2, TriangleAlert, XCircle } from 'lucide-react-native';
+import { CheckCircle2, PenLine, TriangleAlert, XCircle } from 'lucide-react-native';
 import { Screen } from '@/components/ui/Screen';
 import { AppText } from '@/components/ui/AppText';
 import { Button } from '@/components/ui/Button';
@@ -11,13 +11,14 @@ import { Input } from '@/components/ui/Input';
 import { ScalePressable } from '@/components/ui/Pressable';
 import { useToast } from '@/components/ui/Toast';
 import { WizardHeader } from '@/components/wizard/WizardHeader';
+import { SignaturePad } from '@/components/signature/SignaturePad';
 import { vehicleTitle } from '@/components/vehicle/VehicleCard';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useChecklist, useInspectionFull } from '@/lib/queries';
 import { useSubmitInspection } from '@/lib/mutations';
 import { getAutosaveEngine } from '@/lib/autosave';
 import { useWizardStore } from '@/store/wizard';
-import { scoreBand } from '@/lib/format';
+import { formatDate, scoreBand } from '@/lib/format';
 import type { Recommendation } from '@/lib/types';
 
 const RECOMMENDATIONS: { value: Recommendation; label: string; sub: string; icon: any }[] = [
@@ -33,6 +34,7 @@ export default function SummaryStep() {
   const full = useInspectionFull(id);
   const checklist = useChecklist();
   const submit = useSubmitInspection(id!);
+  const [padOpen, setPadOpen] = useState(false);
   const [stage, setStage] = useState<'idle' | 'saving'>('idle');
 
   const results = useWizardStore((s) => s.results);
@@ -59,7 +61,8 @@ export default function SummaryStep() {
     return { perSection, unansweredIds };
   }, [checklist.data, results]);
 
-  const canSubmit = summary.score > 0 && summary.recommendation != null;
+  const canSubmit =
+    summary.score > 0 && summary.recommendation != null && summary.signaturePngB64 != null;
 
   const onSubmit = async () => {
     if (!canSubmit) return;
@@ -76,6 +79,7 @@ export default function SummaryStep() {
         recommendation: summary.recommendation!,
         inspector_notes: summary.notes,
         estimated_repair_cost: summary.repairCost,
+        signaturePngB64: summary.signaturePngB64!,
         unansweredItemIds: tallies.unansweredIds,
       },
       {
@@ -247,6 +251,42 @@ export default function SummaryStep() {
         style={{ minHeight: 90, textAlignVertical: 'top' }}
       />
 
+      {/* Buyer signature */}
+      <AppText variant="micro" color="tertiary" style={styles.sectionLabel}>
+        Buyer signature
+      </AppText>
+      <ScalePressable
+        onPress={() => setPadOpen(true)}
+        style={[styles.sigBox, { borderColor: colors.border, backgroundColor: colors.surface }]}
+      >
+        {summary.signaturePngB64 ? (
+          <Image
+            source={{ uri: `data:image/png;base64,${summary.signaturePngB64}` }}
+            style={styles.sigImage}
+            resizeMode="contain"
+          />
+        ) : (
+          <View style={styles.sigEmpty}>
+            <PenLine size={20} color={colors.textTertiary} />
+            <AppText variant="body" color="tertiary">
+              Tap for buyer to sign
+            </AppText>
+          </View>
+        )}
+      </ScalePressable>
+      <AppText variant="caption" color="secondary" style={{ marginTop: 6 }}>
+        {full.data?.client?.full_name || 'Buyer'} · {formatDate(new Date().toISOString())}
+      </AppText>
+
+      <SignaturePad
+        visible={padOpen}
+        onDone={(b64) => {
+          setSummary({ signaturePngB64: b64 });
+          setPadOpen(false);
+        }}
+        onCancel={() => setPadOpen(false)}
+      />
+
     </Screen>
   );
 }
@@ -282,4 +322,7 @@ const styles = StyleSheet.create({
     padding: 16,
     minHeight: 56,
   },
+  sigBox: { borderWidth: 1.5, borderStyle: 'dashed', borderRadius: 16, minHeight: 110, overflow: 'hidden' },
+  sigImage: { width: '100%', height: 110 },
+  sigEmpty: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 6, minHeight: 110 },
 });

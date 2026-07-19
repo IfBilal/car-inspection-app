@@ -260,6 +260,7 @@ export type SubmitPayload = {
   recommendation: Recommendation;
   inspector_notes: string;
   estimated_repair_cost: string;
+  signaturePngB64: string;
   /** item ids that are still unanswered — bulk-marked N/A at submit */
   unansweredItemIds: number[];
 };
@@ -268,7 +269,18 @@ export function useSubmitInspection(inspectionId: string) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (payload: SubmitPayload) => {
-      // 1. Unanswered → N/A
+      // 1. Upload the buyer's finger-drawn signature.
+      const signaturePath = `inspections/${inspectionId}/buyer-signature.png`;
+      const bytes = Uint8Array.from(atob(payload.signaturePngB64), (c) => c.charCodeAt(0));
+      const { error: signatureError } = await supabase.storage
+        .from('signatures')
+        .upload(signaturePath, bytes.buffer as ArrayBuffer, {
+          contentType: 'image/png',
+          upsert: true,
+        });
+      if (signatureError) throw signatureError;
+
+      // 2. Unanswered → N/A
       if (payload.unansweredItemIds.length > 0) {
         const { error } = await supabase.from('inspection_results').upsert(
           payload.unansweredItemIds.map((item_id) => ({
@@ -291,6 +303,7 @@ export function useSubmitInspection(inspectionId: string) {
           estimated_repair_cost: payload.estimated_repair_cost
             ? Number(payload.estimated_repair_cost)
             : null,
+          signature_path: signaturePath,
           status: 'completed',
           completed_at: new Date().toISOString(),
         })

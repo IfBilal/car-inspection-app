@@ -18,9 +18,9 @@ export function SignaturePad({ visible, onDone, onCancel }: Props) {
     <Modal visible={visible} animationType="slide" onRequestClose={onCancel}>
       <View style={[styles.container, { backgroundColor: colors.canvas }]}>
         <View style={styles.header}>
-          <AppText variant="title2">Sign here</AppText>
+          <AppText variant="title2">Buyer signature</AppText>
           <AppText variant="caption" color="secondary">
-            Draw your signature with your finger
+            Ask the buyer to draw their signature with a finger
           </AppText>
         </View>
         <View style={[styles.padWrap, { borderColor: colors.border }]}>
