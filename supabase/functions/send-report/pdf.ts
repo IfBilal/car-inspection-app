@@ -64,7 +64,7 @@ const W = A4[0] - M * 2;
 const HEADER_H = 80;
 
 const CONTACT_LINE =
-  '+1 (555) 012-3456   ·   reports@jselitemotorworks.com   ·   www.jselitemotorworks.com   ·   App: carinspect.pro';
+  'jselitemotorworks@gmail.com   ·   www.jselitemotorworks.com.au   ·   +61434880044';
 
 const STATUS_OPTS: { result: Exclude<ItemResult, null>; label: string; color: RGB }[] = [
   { result: 'pass', label: 'OK', color: GREEN },
@@ -529,14 +529,14 @@ export async function renderReport(data: ReportData): Promise<Uint8Array> {
     const contactLeft = M + 72;
     const contactRegion = A4[0] - M - contactLeft;
     let cSize = 8.5;
-    while (cSize > 6.5 && font.widthOfTextAtSize(CONTACT_LINE, cSize) > contactRegion) cSize -= 0.25;
-    const contactW = font.widthOfTextAtSize(CONTACT_LINE, cSize);
+    while (cSize > 6.5 && bold.widthOfTextAtSize(CONTACT_LINE, cSize) > contactRegion) cSize -= 0.25;
+    const contactW = bold.widthOfTextAtSize(CONTACT_LINE, cSize);
     page.drawText(CONTACT_LINE, {
       x: Math.max(contactLeft, contactLeft + (contactRegion - contactW) / 2),
       y: topY - 44,
       size: cSize,
-      font,
-      color: SOFT,
+      font: bold,
+      color: RED,
     });
     // page badge
     const badge = `PAGE ${i + 1} OF ${total}`;
