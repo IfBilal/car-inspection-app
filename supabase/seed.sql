@@ -118,3 +118,18 @@ select 2, item_number, label, null, sort_order from numbered;
 update checklist_items
 set description = 'Check coolant level, color, and for signs of leaks.'
 where section_id = 2 and label = 'Coolant Antifreeze';
+
+-- Remove semantic repetitions while retaining the more complete checkpoint.
+delete from checklist_items
+where label in (
+  'Suspension noises',
+  'Wheel bearing noise',
+  'ABS operation',
+  'Engine starts easily',
+  'Engine noises',
+  'Air conditioning while driving',
+  'Warning lights during road test',
+  'Signs of flood damage',
+  'Coolant level',
+  'Coolant condition'
+);
