@@ -37,7 +37,6 @@ export type ReportData = {
     kind: SectionKind;
     items: { number: number; label: string; description: string | null; result: ItemResult; note: string | null }[];
   }[];
-  obd: { ready: boolean | null; codes: string; notes: string };
   damageMarks: DamageMark[];
   score: number; // 1..10
   estimatedRepairCost: string;
@@ -334,34 +333,6 @@ function flagsSection(p: Painter, section: ReportData['sections'][0]) {
   p.gap(10);
 }
 
-function obdBlock(p: Painter, d: ReportData) {
-  p.ensure(64);
-  p.sectionBar('OBD-II Readiness Monitors (Emissions System)');
-  const rowH = 40;
-  p.ensure(rowH);
-  p.cellBorder(M, p.y, W, rowH);
-  const cy1 = p.y - 12;
-  p.checkbox(M + 8, cy1, d.obd.ready === true, GREEN);
-  p.text('Ready — all monitors are ready', M + 22, cy1 + 4.5, 8);
-  const cy2 = p.y - 28;
-  p.checkbox(M + 8, cy2, d.obd.ready === false, AMBER);
-  p.text('Not Ready — one or more monitors are not ready', M + 22, cy2 + 4.5, 8);
-  const half = M + W / 2;
-  p.text('CODES FOUND:', half, p.y - 5, 7.5, { bold: true, color: NAVY_TEXT });
-  const codeLines = p.wrap(d.obd.codes || 'No codes found', 8, W / 2 - 14);
-  codeLines.slice(0, 2).forEach((l, i) => p.text(l, half, p.y - 16 - i * 10, 8));
-  p.y -= rowH;
-  if (d.obd.notes) {
-    const noteLines = p.wrap(`Additional notes: ${d.obd.notes}`, 7.5, W - 12);
-    const h = noteLines.length * 9.5 + 7;
-    p.ensure(h);
-    p.cellBorder(M, p.y, W, h);
-    noteLines.forEach((l, i) => p.text(l, M + 6, p.y - 4.5 - i * 9.5, 7.5, { color: SOFT }));
-    p.y -= h;
-  }
-  p.gap(10);
-}
-
 function ratingBlock(p: Painter, d: ReportData) {
   p.ensure(58);
   p.sectionBar('Overall Condition Rating');
@@ -463,28 +434,15 @@ async function signaturesBlock(p: Painter, d: ReportData, doc: PDFDocument) {
 
 function disclaimerBlock(p: Painter) {
   const disclaimer =
-    'DISCLAIMER: This inspection is a visual assessment only and does not guarantee the mechanical condition or future performance ' +
-    'of the vehicle. The inspector is not responsible for hidden defects or issues that may arise after the inspection. We recommend ' +
-    'a full mechanical inspection by a trusted certified mechanic for a comprehensive evaluation before purchase.';
-  const lines = p.wrap(disclaimer, 7, W - 12);
-  const h = lines.length * 9 + 10;
-  p.ensure(h);
-  p.page.drawRectangle({ x: M, y: p.y - h, width: W, height: h, borderColor: RED, borderWidth: 0.8 });
-  lines.forEach((l, i) => p.text(l, M + 6, p.y - 5 - i * 9, 7, { color: RED }));
-  p.y -= h;
-}
-
-function declarationBlock(p: Painter) {
-  const declaration =
     'I certify that this inspection has been completed to the best of my ability based on the visible condition of the vehicle at the time of inspection. ' +
     'This report is intended as a guide only and does not guarantee the future reliability or performance of the vehicle. ' +
     'Components that cannot be visually inspected or tested without dismantling have not been assessed.';
-  const lines = p.wrap(declaration, 7.5, W - 12);
+  const lines = p.wrap(disclaimer, 7.5, W - 12);
   const h = lines.length * 9.5 + 14;
   p.ensure(h + 10);
-  p.sectionBar('Declaration');
-  p.page.drawRectangle({ x: M, y: p.y - h, width: W, height: h, borderColor: NAVY, borderWidth: 0.8 });
-  lines.forEach((line, index) => p.text(line, M + 6, p.y - 6 - index * 9.5, 7.5, { color: TEXT }));
+  p.sectionBar('Disclaimer', RED_BAR);
+  p.page.drawRectangle({ x: M, y: p.y - h, width: W, height: h, borderColor: RED, borderWidth: 0.8 });
+  lines.forEach((line, index) => p.text(line, M + 6, p.y - 6 - index * 9.5, 7.5, { color: RED }));
   p.y -= h;
   p.gap(10);
 }
@@ -521,13 +479,10 @@ export async function renderReport(data: ReportData): Promise<Uint8Array> {
       damageDiagramBlock(p, data, diagram);
       flagsSection(p, section);
     } else statusSection(p, section);
-    // OBD block right after the diagnostic-scan section
-    if (section.title.toLowerCase().includes('diagnostic')) obdBlock(p, data);
   }
   ratingBlock(p, data);
   recommendationBlock(p, data);
   await signaturesBlock(p, data, doc);
-  declarationBlock(p);
   disclaimerBlock(p);
 
   // ===== photos (appended after the report pages) =====

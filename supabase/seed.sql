@@ -80,3 +80,37 @@ insert into checklist_items (section_id, item_number, label, description, sort_o
 on conflict (item_number) do update set
   label = excluded.label, description = excluded.description,
   section_id = excluded.section_id, sort_order = excluded.sort_order;
+
+-- Remove the superseded broad checklist sections and the diagnostic/OBD section.
+-- Detailed sections from migration 0006 remain as the active mechanical checklist.
+delete from checklist_items where section_id in (3, 4, 5, 6, 7, 15);
+delete from checklist_sections where id in (3, 4, 5, 6, 7, 15);
+
+update checklist_sections set title = 'Exterior' where id = 2;
+delete from checklist_items
+where section_id = 2
+  and label in ('Glass & Lights', 'Tires Condition', 'Wheels Rims', 'Spare Tire & Jack');
+
+update checklist_items
+set sort_order = case label
+  when 'Body & Paint Condition' then 1
+  when 'Rust & Corrosion' then 2
+  when 'Exterior Trim & Seals' then 3
+end
+where section_id = 2;
+
+with exterior(label, sort_order) as (
+  values
+    ('Bonnet', 4), ('Roof', 5), ('Tailgate/Boot', 6), ('Doors', 7),
+    ('Hinges and Struts', 8), ('Locks and Latches', 9), ('Front Bumper', 10),
+    ('Rear Bumper', 11), ('Panel Alignment', 12), ('Paint Match', 13),
+    ('Windscreen and Windows', 14), ('Mirrors', 15), ('Headlights', 16),
+    ('Indicators', 17), ('Brake & Taillights', 18), ('Wiper Blades', 19),
+    ('Windscreen Washer & Pump', 20)
+), numbered as (
+  select e.*, (select coalesce(max(item_number), 0) from checklist_items) +
+    row_number() over (order by e.sort_order) as item_number
+  from exterior e
+)
+insert into checklist_items (section_id, item_number, label, description, sort_order)
+select 2, item_number, label, null, sort_order from numbered;

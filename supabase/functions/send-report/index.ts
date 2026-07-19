@@ -120,11 +120,6 @@ Deno.serve(async (req) => {
           })),
       })),
       damageMarks: Array.isArray(insp.damage_marks) ? insp.damage_marks : [],
-      obd: {
-        ready: insp.obd_ready,
-        codes: insp.obd_codes ?? '',
-        notes: insp.obd_notes ?? '',
-      },
       score: insp.overall_score ?? 0,
       estimatedRepairCost: insp.estimated_repair_cost != null ? String(insp.estimated_repair_cost) : '',
       recommendation: insp.recommendation ?? 'negotiate',

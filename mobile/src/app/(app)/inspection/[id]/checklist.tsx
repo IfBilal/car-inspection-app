@@ -11,9 +11,8 @@ import { useToast } from '@/components/ui/Toast';
 import { WizardHeader } from '@/components/wizard/WizardHeader';
 import { ItemRow } from '@/components/checklist/ItemRow';
 import { useTheme } from '@/theme/ThemeProvider';
-import { useChecklist, useInspectionFull } from '@/lib/queries';
+import { useChecklist } from '@/lib/queries';
 import { useBulkResults } from '@/lib/mutations';
-import { ObdCard } from '@/components/checklist/ObdCard';
 import { getAutosaveEngine } from '@/lib/autosave';
 import { useWizardStore } from '@/store/wizard';
 import type { ChecklistItem, ChecklistSection, SectionKind } from '@/lib/types';
@@ -33,7 +32,6 @@ export default function ChecklistStep() {
   const { colors } = useTheme();
   const toast = useToast();
   const checklist = useChecklist();
-  const full = useInspectionFull(id);
   const bulk = useBulkResults(id!);
   const listRef = useRef<FlashListRef<Row>>(null);
   const [activeSection, setActiveSection] = useState<number | null>(null);
@@ -178,7 +176,6 @@ export default function ChecklistStep() {
             }
             return <ItemRow item={row.item} kind={row.kind} inspectionId={id!} />;
           }}
-          ListFooterComponent={full.data ? <ObdCard inspection={full.data} /> : null}
           onViewableItemsChanged={({ viewableItems }) => {
             const first = viewableItems.find((v) => v.item?.type === 'header' || v.item?.type === 'item');
             if (!first?.item) return;
