@@ -189,13 +189,11 @@ export function useSaveVehicle(inspectionId: string) {
   return useMutation({
     mutationFn: async (
       input:
-        | { vehicleId: string; form: VehicleForm; snapshot: { odometer_km?: string; seller?: string; purchase_price?: string } }
-        | { existingVehicleId: string; form: VehicleForm; snapshot: { odometer_km?: string; seller?: string; purchase_price?: string } },
+        | { vehicleId: string; form: VehicleForm; snapshot: { odometer_km?: string } }
+        | { existingVehicleId: string; form: VehicleForm; snapshot: { odometer_km?: string } },
     ) => {
       const snapshotRow = {
         odometer_km: input.snapshot.odometer_km ? Number(input.snapshot.odometer_km) : null,
-        seller: input.snapshot.seller || null,
-        purchase_price: input.snapshot.purchase_price ? Number(input.snapshot.purchase_price) : null,
       };
       if ('existingVehicleId' in input) {
         const { error: vehicleError } = await supabase

@@ -59,8 +59,6 @@ export default function VehicleStep() {
       drive_type: '',
       body_type: undefined,
       odometer_km: '',
-      seller: '',
-      purchase_price: '',
     },
   });
 
@@ -83,8 +81,6 @@ export default function VehicleStep() {
       drive_type: v.drive_type ?? '',
       body_type: v.body_type ?? undefined,
       odometer_km: full.data?.odometer_km != null ? String(full.data.odometer_km) : '',
-      seller: full.data?.seller ?? '',
-      purchase_price: full.data?.purchase_price != null ? String(full.data.purchase_price) : '',
     });
   }, [resumedVehicle, full.data, formState.isDirty, reset]);
 
@@ -130,8 +126,6 @@ export default function VehicleStep() {
       drive_type: dupeCandidate.drive_type ?? '',
       body_type: dupeCandidate.body_type ?? undefined,
       odometer_km: getValues('odometer_km'),
-      seller: getValues('seller'),
-      purchase_price: getValues('purchase_price'),
     });
   };
 
@@ -139,8 +133,6 @@ export default function VehicleStep() {
     try {
       const snapshot = {
         odometer_km: form.odometer_km,
-        seller: form.seller,
-        purchase_price: form.purchase_price,
       };
       if (linkedVehicle) {
         await saveVehicle.mutateAsync({ existingVehicleId: linkedVehicle.id, form, snapshot });
@@ -397,25 +389,6 @@ export default function VehicleStep() {
               value={String(field.value ?? '')}
               onChangeText={field.onChange}
               error={fieldState.error?.message}
-            />
-          )}
-        />
-        <Controller
-          control={control}
-          name="seller"
-          render={({ field }) => (
-            <Input label="Seller (optional)" value={field.value ?? ''} onChangeText={field.onChange} />
-          )}
-        />
-        <Controller
-          control={control}
-          name="purchase_price"
-          render={({ field }) => (
-            <Input
-              label="Asking price (optional)"
-              keyboardType="decimal-pad"
-              value={String(field.value ?? '')}
-              onChangeText={field.onChange}
             />
           )}
         />

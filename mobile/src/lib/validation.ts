@@ -35,11 +35,6 @@ export const vehicleSchema = z
       .string()
       .optional()
       .refine((v) => !v || /^\d+$/.test(v), 'Numbers only'),
-    seller: z.string().trim().optional().or(z.literal('')),
-    purchase_price: z
-      .string()
-      .optional()
-      .refine((v) => !v || /^\d+(\.\d+)?$/.test(v), 'Numbers only'),
   })
   .refine((v) => !!(v.registration_plate || v.chassis_number || v.vin), {
     message: 'Enter at least one of plate, chassis or VIN',

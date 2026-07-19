@@ -90,7 +90,6 @@ Deno.serve(async (req) => {
       companyName,
       inspectorName: insp.inspector?.full_name ?? '',
       buyerName: insp.client?.full_name ?? '',
-      sellerName: insp.seller ?? '',
       vehicle: {
         year: v.year != null ? String(v.year) : '',
         make: v.make ?? '',
@@ -103,7 +102,6 @@ Deno.serve(async (req) => {
         drivetrain: v.drive_type ?? '',
         exteriorColor: v.colour ?? '',
         fuelType: v.fuel_type ?? '',
-        askingPrice: insp.purchase_price != null ? String(insp.purchase_price) : '',
         bodyType: v.body_type ?? null,
       },
       sections: (sections ?? []).map((s) => ({

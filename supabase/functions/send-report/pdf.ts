@@ -16,7 +16,6 @@ export type ReportData = {
   companyName: string;
   inspectorName: string;
   buyerName: string;
-  sellerName: string;
   vehicle: {
     year: string;
     make: string;
@@ -29,7 +28,6 @@ export type ReportData = {
     drivetrain: string;
     exteriorColor: string;
     fuelType: string;
-    askingPrice: string;
     bodyType: string | null;
   };
   sections: {
@@ -169,12 +167,11 @@ function vehicleDetailsBlock(p: Painter, d: ReportData) {
   const rows: [string, string, string, string][] = [
     ['Rego:', d.vehicle.plate, 'Date:', d.date],
     ['Inspector Name:', d.inspectorName, 'Buyer Name:', d.buyerName],
-    ['Seller Name:', d.sellerName, 'Year:', d.vehicle.year],
-    ['Make:', d.vehicle.make, 'Model:', d.vehicle.model],
-    ['Trim / Model Variant:', d.vehicle.trim, 'VIN:', d.vehicle.vin],
-    ['Odometer Reading:', d.vehicle.odometer, 'Transmission:', d.vehicle.transmission],
-    ['Drivetrain:', d.vehicle.drivetrain, 'Exterior Color:', d.vehicle.exteriorColor],
-    ['Fuel Type:', d.vehicle.fuelType, 'Asking Price:', d.vehicle.askingPrice ? `$ ${d.vehicle.askingPrice}` : ''],
+    ['Year:', d.vehicle.year, 'Make:', d.vehicle.make],
+    ['Model:', d.vehicle.model, 'Trim / Model Variant:', d.vehicle.trim],
+    ['VIN:', d.vehicle.vin, 'Odometer Reading:', d.vehicle.odometer],
+    ['Transmission:', d.vehicle.transmission, 'Drivetrain:', d.vehicle.drivetrain],
+    ['Exterior Color:', d.vehicle.exteriorColor, 'Fuel Type:', d.vehicle.fuelType],
   ];
   const rowH = 18;
   const half = W / 2;
