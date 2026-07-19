@@ -1,5 +1,6 @@
 import { forwardRef, useState } from 'react';
-import { TextInput, View, StyleSheet, type TextInputProps } from 'react-native';
+import { Pressable, TextInput, View, StyleSheet, type TextInputProps } from 'react-native';
+import { Eye, EyeOff } from 'lucide-react-native';
 import { useTheme } from '@/theme/ThemeProvider';
 import { AppText } from './AppText';
 
@@ -11,6 +12,8 @@ type Props = TextInputProps & {
   suffix?: string;
   /** 'glass' = translucent dark-hero styling for the auth screens */
   tone?: 'default' | 'glass';
+  /** Shows an eye button that toggles secure password visibility. */
+  showPasswordToggle?: boolean;
 };
 
 const GLASS = {
@@ -25,11 +28,24 @@ const GLASS = {
 };
 
 export const Input = forwardRef<TextInput, Props>(function Input(
-  { label, error, helper, suffix, style, onFocus, onBlur, tone = 'default', ...rest },
+  {
+    label,
+    error,
+    helper,
+    suffix,
+    style,
+    onFocus,
+    onBlur,
+    tone = 'default',
+    showPasswordToggle = false,
+    secureTextEntry,
+    ...rest
+  },
   ref,
 ) {
   const { colors, radii, type } = useTheme();
   const [focused, setFocused] = useState(false);
+  const [passwordVisible, setPasswordVisible] = useState(false);
   const glass = tone === 'glass';
 
   const palette = glass
@@ -77,6 +93,7 @@ export const Input = forwardRef<TextInput, Props>(function Input(
         <TextInput
           ref={ref}
           {...rest}
+          secureTextEntry={secureTextEntry && !passwordVisible}
           onFocus={(e) => {
             setFocused(true);
             onFocus?.(e);
@@ -93,6 +110,21 @@ export const Input = forwardRef<TextInput, Props>(function Input(
           <AppText variant="caption" style={[styles.suffix, { color: palette.helper }]}>
             {suffix}
           </AppText>
+        ) : null}
+        {showPasswordToggle ? (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={passwordVisible ? 'Hide password' : 'Show password'}
+            hitSlop={10}
+            onPress={() => setPasswordVisible((visible) => !visible)}
+            style={styles.passwordToggle}
+          >
+            {passwordVisible ? (
+              <EyeOff size={21} color={palette.helper} />
+            ) : (
+              <Eye size={21} color={palette.helper} />
+            )}
+          </Pressable>
         ) : null}
       </View>
       {error ? (
@@ -118,4 +150,5 @@ const styles = StyleSheet.create({
   },
   input: { flex: 1, paddingVertical: 14 },
   suffix: { marginLeft: 8 },
+  passwordToggle: { marginLeft: 8, padding: 4 },
 });

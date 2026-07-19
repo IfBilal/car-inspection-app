@@ -1,9 +1,8 @@
 import { useState } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet } from 'react-native';
+import { Image, KeyboardAvoidingView, Platform, ScrollView, StyleSheet } from 'react-native';
 import { Link } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
-import { Image } from 'react-native';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { AuthBackdrop } from '@/components/auth/AuthBackdrop';
@@ -85,6 +84,7 @@ export default function LoginScreen() {
                   tone="glass"
                   label="Password"
                   secureTextEntry
+                  showPasswordToggle
                   autoComplete="password"
                   value={field.value}
                   onChangeText={field.onChange}

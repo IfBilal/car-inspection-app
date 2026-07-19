@@ -318,16 +318,24 @@ export function useSubmitInspection(inspectionId: string) {
   });
 }
 
-/** Invoke the send-report Edge Function (submit + re-send). */
+/** Generate a report preview or send an approved/re-requested report. */
 export function useSendReport() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (args: { inspectionId: string; resend?: boolean; overrideEmail?: string }) => {
+    mutationFn: async (args: {
+      inspectionId: string;
+      resend?: boolean;
+      overrideEmail?: string;
+      previewOnly?: boolean;
+      useExistingPdf?: boolean;
+    }) => {
       const { data, error } = await supabase.functions.invoke('send-report', {
         body: {
           inspection_id: args.inspectionId,
           resend: args.resend ?? false,
           override_email: args.overrideEmail,
+          preview_only: args.previewOnly ?? false,
+          use_existing_pdf: args.useExistingPdf ?? false,
         },
       });
       if (error) throw error;

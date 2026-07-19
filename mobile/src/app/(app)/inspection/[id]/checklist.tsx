@@ -162,8 +162,13 @@ export default function ChecklistStep() {
             if (row.type === 'header') {
               const section = sections.find((s) => s.id === row.section.id)!;
               return (
-                <View style={[styles.sectionHeader, { backgroundColor: colors.canvas }]}>
-                  <AppText variant="micro" color="tertiary" style={{ flexShrink: 1 }}>
+                <View
+                  style={[
+                    styles.sectionHeader,
+                    { backgroundColor: colors.canvas, borderLeftColor: colors.primary },
+                  ]}
+                >
+                  <AppText variant="bodyStrong" style={{ flexShrink: 1 }}>
                     {row.section.title}
                   </AppText>
                   <ScalePressable onPress={() => markRemainingGood(section)} hitSlop={8}>
@@ -214,8 +219,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingTop: 20,
-    paddingBottom: 8,
+    gap: 12,
+    borderLeftWidth: 3,
+    paddingLeft: 10,
+    paddingTop: 22,
+    paddingBottom: 10,
   },
   unansweredBar: { paddingVertical: 4 },
 });

@@ -4,7 +4,13 @@ import { createClient } from 'npm:@supabase/supabase-js@2';
 import nodemailer from 'npm:nodemailer@6';
 import { renderReport, type ReportData } from './pdf.ts';
 
-type Body = { inspection_id?: string; resend?: boolean; override_email?: string };
+type Body = {
+  inspection_id?: string;
+  resend?: boolean;
+  override_email?: string;
+  preview_only?: boolean;
+  use_existing_pdf?: boolean;
+};
 
 const REC_SENTENCE = {
   buy: 'Recommendation: BUY — the vehicle is in good condition and ready to purchase.',
@@ -66,9 +72,16 @@ Deno.serve(async (req) => {
   const companyName = insp.inspector?.company_name || Deno.env.get('SMTP_FROM_NAME') || 'Vehicle Inspections';
 
   // ---- PDF ----
-  // Always rebuild so a re-send reflects the current report template.
+  // Preview requests always rebuild. Approval sends the exact stored PDF that
+  // the mechanic reviewed, while regular re-sends rebuild from current data.
   let pdfBytes: Uint8Array | null = null;
   let pdfPath: string = insp.pdf_path ?? `inspections/${inspectionId}/report.pdf`;
+
+  if (body.use_existing_pdf && insp.pdf_path) {
+    const { data, error } = await supabase.storage.from('reports').download(insp.pdf_path);
+    if (error || !data) return fail('pdf', `Approved PDF download failed: ${error?.message ?? 'not found'}`);
+    pdfBytes = new Uint8Array(await data.arrayBuffer());
+  }
 
   if (!pdfBytes) {
     // photos + signature
@@ -137,6 +150,12 @@ Deno.serve(async (req) => {
       .upload(pdfPath, pdfBytes, { contentType: 'application/pdf', upsert: true });
     if (upErr) return fail('pdf', `PDF upload failed: ${upErr.message}`);
     await supabase.from('inspections').update({ pdf_path: pdfPath }).eq('id', inspectionId);
+  }
+
+  if (body.preview_only) {
+    return new Response(JSON.stringify({ ok: true, pdf_path: pdfPath, preview_only: true }), {
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
 
   // ---- Email ----
