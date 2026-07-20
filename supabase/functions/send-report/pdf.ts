@@ -469,7 +469,19 @@ export async function renderReport(data: ReportData): Promise<Uint8Array> {
 
   // ===== body =====
   vehicleDetailsBlock(p, data);
-  for (const section of data.sections) {
+  // Keep the scan directly after the road test even if legacy database rows
+  // have duplicate sort_order values (which otherwise produce an unstable
+  // order in Postgres).
+  const sections = [...data.sections];
+  const roadTestIndex = sections.findIndex((section) => section.title.trim().toLowerCase() === "road test");
+  const diagnosticIndex = sections.findIndex((section) => section.title.trim().toLowerCase() === "diagnostic scan");
+  if (roadTestIndex !== -1 && diagnosticIndex !== -1 && diagnosticIndex !== roadTestIndex + 1) {
+    const [diagnostic] = sections.splice(diagnosticIndex, 1);
+    const updatedRoadTestIndex = sections.findIndex((section) => section.title.trim().toLowerCase() === "road test");
+    sections.splice(updatedRoadTestIndex + 1, 0, diagnostic);
+  }
+
+  for (const section of sections) {
     if (section.kind === 'passfail') passFailSection(p, section);
     else if (section.kind === 'flags') {
       // sample order: damage diagram sits right before the red flags table
