@@ -2,7 +2,7 @@ import type { ImageSourcePropType } from 'react-native';
 
 export const BODY_TYPE_OPTIONS = [
   'Sedan',
-  'Single cab Ute',
+  'Single Cab Ute',
   'Double Cab Ute',
   'SUV',
   'Hatchback',
@@ -29,7 +29,7 @@ const diagrams: Record<VehicleBodyType, Diagram> = {
   dual_cab_ute: { source: require('../../assets/images/dual_cab_ute.jpeg'), aspect: 1179 / 1088, label: 'Double Cab Ute' },
   hatchback: { source: require('../../assets/images/hatchback.jpeg'), aspect: 1179 / 1262, label: 'Hatchback' },
   sedan: { source: require('../../assets/images/sedan.jpeg'), aspect: 1179 / 1056, label: 'Sedan' },
-  single_cab_ute: { source: require('../../assets/images/single_cab_ute.jpeg'), aspect: 1306 / 1205, label: 'Single cab Ute' },
+  single_cab_ute: { source: require('../../assets/images/single_cab_ute.jpeg'), aspect: 1306 / 1205, label: 'Single Cab Ute' },
   van: { source: require('../../assets/images/van.jpeg'), aspect: 1343 / 1171, label: 'Van' },
   wagon: { source: require('../../assets/images/wagon.jpeg'), aspect: 1179 / 1042, label: 'Wagon' },
 };

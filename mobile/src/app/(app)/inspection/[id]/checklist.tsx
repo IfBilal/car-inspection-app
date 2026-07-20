@@ -165,10 +165,16 @@ export default function ChecklistStep() {
                 <View
                   style={[
                     styles.sectionHeader,
-                    { backgroundColor: colors.canvas, borderLeftColor: colors.primary },
+                    {
+                      backgroundColor: colors.primarySoft,
+                      borderColor: colors.primary,
+                    },
                   ]}
                 >
-                  <AppText variant="bodyStrong" style={{ flexShrink: 1 }}>
+                  <AppText
+                    variant="title2"
+                    style={{ color: colors.primaryText, flexShrink: 1 }}
+                  >
                     {row.section.title}
                   </AppText>
                   <ScalePressable onPress={() => markRemainingGood(section)} hitSlop={8}>
@@ -220,10 +226,13 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     gap: 12,
-    borderLeftWidth: 3,
-    paddingLeft: 10,
-    paddingTop: 22,
-    paddingBottom: 10,
+    borderWidth: 1,
+    borderLeftWidth: 4,
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 12,
+    marginTop: 18,
+    marginBottom: 8,
   },
   unansweredBar: { paddingVertical: 4 },
 });
