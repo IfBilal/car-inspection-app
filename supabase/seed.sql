@@ -106,7 +106,7 @@ with exterior(label, sort_order) as (
     ('Rear Bumper', 11), ('Panel Alignment', 12), ('Paint Match', 13),
     ('Windscreen and Windows', 14), ('Mirrors', 15), ('Headlights', 16),
     ('Indicators', 17), ('Brake & Taillights', 18), ('Wiper Blades', 19),
-    ('Windscreen Washer & Pump', 20), ('Coolant Antifreeze', 21)
+    ('Windscreen Washer & Pump', 20)
 ), numbered as (
   select e.*, (select coalesce(max(item_number), 0) from checklist_items) +
     row_number() over (order by e.sort_order) as item_number
@@ -114,10 +114,6 @@ with exterior(label, sort_order) as (
 )
 insert into checklist_items (section_id, item_number, label, description, sort_order)
 select 2, item_number, label, null, sort_order from numbered;
-
-update checklist_items
-set description = 'Check coolant level, color, and for signs of leaks.'
-where section_id = 2 and label = 'Coolant Antifreeze';
 
 -- Remove semantic repetitions while retaining the more complete checkpoint.
 delete from checklist_items
